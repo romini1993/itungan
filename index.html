@@ -3,87 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KURS REALTIME PRO - MULTI</title>
+    <title>KURS REALTIME PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #0c0c0c; color: white; font-family: 'Inter', sans-serif; }
-        .glass { background: #161616; border: 1px solid #2a2a2a; border-radius: 20px; }
-        input { background: #000 !important; border: 1px solid #333 !important; }
-        input:focus { border-color: #f0b90b !important; outline: none; }
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        body { background-color: #080808; color: #e2e8f0; font-family: 'JetBrains Mono', monospace; }
+        .glass { background: rgba(18, 18, 18, 0.9); border: 1px solid #2d2d2d; border-radius: 24px; }
+        .input-focus:focus { border-color: #f0b90b; box-shadow: 0 0 15px rgba(240, 185, 11, 0.2); }
+        .coin-card { transition: all 0.3s ease; border: 1px solid #1e1e1e; }
+        .coin-card:hover { border-color: #3b82f6; transform: translateY(-2px); }
     </style>
 </head>
-<body class="p-4 md:p-10 flex justify-center">
+<body class="min-h-screen p-4 md:p-8 flex flex-col items-center">
 
-    <div class="w-full max-w-4xl">
+    <div class="w-full max-w-3xl">
         <!-- HEADER -->
-        <div class="mb-10 flex justify-between items-end">
+        <div class="flex justify-between items-center mb-8">
             <div>
-                <h1 class="text-4xl font-black text-yellow-500 tracking-tighter italic">KURS REALTIME</h1>
-                <p class="text-gray-500 text-xs uppercase tracking-widest">Multi-Coin Dashboard</p>
+                <h1 class="text-3xl font-black italic text-yellow-500 tracking-tighter">TRX-KURS v5</h1>
+                <p class="text-[10px] text-gray-500 uppercase tracking-[0.3em]">Live USDT/IDR Fair Price</p>
             </div>
-            <div class="text-[10px] text-gray-700 font-mono">STABLE VERSION 4.0</div>
+            <div id="connection" class="text-[10px] bg-red-500/10 text-red-500 px-3 py-1 rounded-full border border-red-500/20">
+                OFFLINE
+            </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            <!-- KOLOM KIRI: KONVERTER USD TO IDR -->
-            <div class="md:col-span-1">
-                <div class="glass p-6 sticky top-10">
-                    <h2 class="text-sm font-bold text-gray-400 mb-6 uppercase">Calculator</h2>
-                    
-                    <div class="mb-6">
-                        <label class="text-[10px] text-gray-500 block mb-1">JUMLAH USD</label>
-                        <input type="number" id="usd" value="1" class="w-full p-4 text-2xl font-bold rounded-xl text-yellow-500">
-                    </div>
-
-                    <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
-                        <p class="text-[10px] text-yellow-500 mb-1">ESTIMASI RUPIAH (IDR)</p>
-                        <div id="idr" class="text-2xl font-black">Rp 16.350</div>
-                        <p class="text-[9px] text-gray-600 mt-2 italic">*Estimasi Kurs: Rp 16.350/USD</p>
-                    </div>
+        <!-- MAIN CALCULATOR -->
+        <div class="glass p-8 mb-8 shadow-2xl border-t-4 border-t-yellow-500">
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div>
+                    <label class="text-[10px] text-gray-500 font-bold mb-2 block uppercase">Amount USD</label>
+                    <input type="number" id="usdInput" value="1" 
+                        class="w-full bg-black/50 border-2 border-gray-800 rounded-2xl p-4 text-4xl font-bold text-white input-focus outline-none transition-all">
+                </div>
+                <div class="bg-yellow-500/5 rounded-2xl p-6 border border-yellow-500/10">
+                    <p class="text-[10px] text-yellow-500 font-bold mb-1 uppercase tracking-widest">Fair IDR Value</p>
+                    <div id="idrOutput" class="text-3xl font-black text-white">Rp 0</div>
+                    <div id="currentRate" class="text-[10px] text-gray-600 mt-2 font-bold uppercase">Rate: Fetching...</div>
                 </div>
             </div>
-
-            <!-- KOLOM KANAN: MULTI COIN MARKET -->
-            <div class="md:col-span-2 space-y-4">
-                <!-- Widget BTC -->
-                <div class="glass overflow-hidden">
-                    <div style="height:62px; background-color: #161616;">
-                        <iframe src="https://widget.coinlib.io/widget?type=horizontal_v2&theme=dark&pref_coin_id=1505&invert_hover=no" width="100%" height="62px" scrolling="auto" marginwidth="0" marginheight="0" frameborder="0" border="0" style="border:0;margin:0;padding:0;"></iframe>
-                    </div>
-                </div>
-
-                <!-- Multi Coin List Widget -->
-                <div class="glass p-2">
-                    <div style="height:440px;">
-                        <iframe src="https://widget.coinlib.io/widget?type=full_v2&theme=dark&cnt=6&pref_coin_id=1505&graph=yes" width="100%" height="440px" scrolling="auto" marginwidth="0" marginheight="0" frameborder="0" border="0" style="border:0;margin:0;padding:0;"></iframe>
-                    </div>
-                </div>
-            </div>
-
         </div>
 
-        <div class="mt-10 text-center text-gray-800 text-[10px] uppercase tracking-[0.5em]">
-            Realtime Data Sync • Satria Dashboard
+        <!-- MULTI COIN GRID -->
+        <h3 class="text-[10px] text-gray-500 font-bold mb-4 uppercase tracking-[0.2em] ml-2">Market Overview (USD)</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="marketGrid">
+            <!-- List koin otomatis di sini -->
         </div>
     </div>
 
     <script>
-        // Logika kalkulator manual biar gak kena blokir browser
-        const usdInput = document.getElementById('usd');
-        const idrOutput = document.getElementById('idr');
-        
-        // Harga kurs rata-rata saat ini (Bisa lu ubah angka 16350 sesuai kurs hari ini)
-        const KURS_SAAT_INI = 16350;
+        const coins = [
+            { id: 'BTCUSDT', name: 'BTC' },
+            { id: 'ETHUSDT', name: 'ETH' },
+            { id: 'SOLUSDT', name: 'SOL' },
+            { id: 'BNBUSDT', name: 'BNB' }
+        ];
 
-        function updateKurs() {
-            const val = usdInput.value;
-            const hasil = val * KURS_SAAT_INI;
-            idrOutput.innerText = "Rp " + hasil.toLocaleString('id-IDR');
+        // Init Grid
+        const grid = document.getElementById('marketGrid');
+        coins.forEach(c => {
+            grid.innerHTML += `
+                <div class="glass coin-card p-4">
+                    <p class="text-[10px] text-gray-500 font-bold">${c.name}</p>
+                    <p id="p-${c.id}" class="text-sm font-bold text-white mt-1">$ --</p>
+                </div>
+            `;
+        });
+
+        async function fetchLive() {
+            try {
+                // 1. Ambil Fair Price USDT ke IDR dari Binance (BIDR)
+                const resKurs = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=USDTBIDR');
+                const dataKurs = await resKurs.json();
+                const usdtIdr = parseFloat(dataKurs.price);
+
+                // Update Kalkulator
+                const input = document.getElementById('usdInput').value;
+                const total = input * usdtIdr;
+                
+                document.getElementById('idrOutput').innerText = new Intl.NumberFormat('id-IDR', {
+                    style: 'currency', currency: 'IDR', maximumFractionDigits: 0
+                }).format(total);
+                
+                document.getElementById('currentRate').innerText = `Rate: Rp ${usdtIdr.toLocaleString('id-IDR')}`;
+
+                // 2. Ambil Harga Koin Lain
+                for (let c of coins) {
+                    const resC = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${c.id}`);
+                    const dataC = await resC.json();
+                    document.getElementById(`p-${c.id}`).innerText = '$ ' + parseFloat(dataC.price).toLocaleString();
+                }
+
+                // Status
+                const conn = document.getElementById('connection');
+                conn.innerText = 'LIVE SYNC';
+                conn.className = 'text-[10px] bg-green-500/10 text-green-500 px-3 py-1 rounded-full border border-green-500/20';
+
+            } catch (err) {
+                console.error("Error Bro:", err);
+            }
         }
 
-        usdInput.addEventListener('input', updateKurs);
-        updateKurs(); // Jalankan pas start
+        // Event Listener
+        document.getElementById('usdInput').addEventListener('input', fetchLive);
+
+        // Run
+        fetchLive();
+        setInterval(fetchLive, 5000); // Update tiap 5 detik
     </script>
 </body>
 </html>
