@@ -589,16 +589,6 @@ function updateEquivDisplay(sym, usdVal) {
   if (equivUSDEl) equivUSDEl.textContent = usdVal > 0 ? fUSD(usdVal) : '—';
   if (equivIDREl) equivIDREl.textContent = usdVal > 0 ? fIDR(usdVal) : '—';
 
-  // other coins equivalents
-  wl.forEach(other => {
-    const osym = other.sym.toUpperCase();
-    if (osym === sym) return;
-    const el = document.getElementById(`eq_${osym}_in_${sym}`);
-    if (el) {
-      const qty = fromUSD_to(usdVal, osym);
-      el.textContent = qty != null && usdVal > 0 ? niceFmt(qty, osym) + ' ' + osym : '—';
-    }
-  });
 }
 
 /* ───────────────────────────────────────────
@@ -660,16 +650,7 @@ function renderCoins() {
     const up   = chg >= 0;
     const src0 = logoSrcs(sym)[0];
 
-    // build equiv items for other coins
-    const otherEquivs = wl
-      .filter(o => o.sym.toUpperCase() !== sym)
-      .map(o => {
-        const osym = o.sym.toUpperCase();
-        return `<div class="equiv-item">
-          <div class="e-label">${osym}</div>
-          <div class="e-val" id="eq_${osym}_in_${sym}">—</div>
-        </div>`;
-      }).join('');
+
 
     return `<div class="coin-card" id="card_${sym}" style="animation-delay:${i*.05}s">
       <div class="card-top">
@@ -726,8 +707,7 @@ function renderCoins() {
             <div class="e-label">≈ IDR</div>
             <div class="e-val" id="eq_idr_${sym}">—</div>
           </div>
-          ${otherEquivs}
-        </div>
+
       </div>
     </div>`;
   }).join('');
@@ -777,8 +757,22 @@ function filterList() {
   if (!cgList.length) return;
 
   let hits = q
-    ? cgList.filter(c => c.name.toLowerCase().includes(q) || c.symbol.toLowerCase().startsWith(q))
+    ? cgList.filter(c => c.name.toLowerCase().includes(q) || c.symbol.toLowerCase().includes(q))
     : cgList;
+
+  if (q) {
+    hits.sort((a, b) => {
+      const aSym = a.symbol.toLowerCase();
+      const bSym = b.symbol.toLowerCase();
+      const aName = a.name.toLowerCase();
+      const bName = b.name.toLowerCase();
+      const rank = x => x === q ? 0 : (x.startsWith(q) ? 1 : 2);
+      const aRank = Math.min(rank(aSym), rank(aName) + 0.5);
+      const bRank = Math.min(rank(bSym), rank(bName) + 0.5);
+      return aRank - bRank;
+    });
+  }
+
   hits = hits.slice(0, 60);
 
   if (!hits.length) {
