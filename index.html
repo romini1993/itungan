@@ -4,6 +4,22 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Kurs Crypto</title>
+<meta name="description" content="Konverter harga crypto realtime — USD, IDR, dan koin favoritmu." />
+<meta name="theme-color" content="#0a0a0f" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Kurs Crypto" />
+<link rel="manifest" href="data:application/json,{
+  %22name%22:%22Kurs Crypto%22,
+  %22short_name%22:%22KursCrypto%22,
+  %22description%22:%22Konverter harga crypto realtime%22,
+  %22start_url%22:%22.%22,
+  %22display%22:%22standalone%22,
+  %22background_color%22:%22%230a0a0f%22,
+  %22theme_color%22:%22%230a0a0f%22,
+  %22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%230a0a0f'/%3E%3Ctext x='256' y='340' font-size='280' text-anchor='middle' fill='%237c6af7' font-family='monospace' font-weight='700'%3E₿%3C/text%3E%3C/svg%3E%22,%22sizes%22:%22512x512%22,%22type%22:%22image/svg+xml%22,%22purpose%22:%22any maskable%22}]
+}" />
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -81,10 +97,10 @@ main { max-width:860px; margin:0 auto; padding:0 20px; }
 }
 
 /* ── COIN CARD ── */
-.coin-list { display:flex; flex-direction:column; gap:10px; }
+.coin-list { display:flex; flex-direction:column; gap:6px; }
 
 .coin-card {
-  background:var(--card); border:1px solid var(--border); border-radius:18px;
+  background:var(--card); border:1px solid var(--border); border-radius:14px;
   overflow:hidden; transition:border-color .2s;
   animation:fadeUp .3s ease both;
 }
@@ -97,67 +113,51 @@ main { max-width:860px; margin:0 auto; padding:0 20px; }
 
 /* top part of card: logo + info + price display */
 .card-top {
-  display:grid; grid-template-columns:52px 1fr auto;
-  align-items:center; gap:14px; padding:16px 18px 12px;
+  display:grid; grid-template-columns:40px 1fr auto;
+  align-items:center; gap:11px; padding:10px 14px 8px;
 }
 
 .coin-logo {
-  width:52px; height:52px; border-radius:50%;
+  width:40px; height:40px; border-radius:50%;
   background:var(--surface); border:1px solid var(--border);
   display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;
 }
-.coin-logo img { width:36px; height:36px; object-fit:contain; display:block; }
-.coin-logo .fallback { font-family:var(--mono); font-size:10px; font-weight:700; color:var(--accent); display:none; }
+.coin-logo img { width:28px; height:28px; object-fit:contain; display:block; }
+.coin-logo .fallback { font-family:var(--mono); font-size:9px; font-weight:700; color:var(--accent); display:none; }
 
 .coin-meta { min-width:0; }
-.coin-name { font-weight:600; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.coin-sym-row { display:flex; align-items:center; gap:8px; margin-top:3px; }
-.coin-sym { font-family:var(--mono); font-size:11px; color:var(--muted); }
-.chg { font-family:var(--mono); font-size:11px; padding:2px 7px; border-radius:5px; }
+.coin-name { font-weight:600; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.coin-sym-row { display:flex; align-items:center; gap:6px; margin-top:2px; }
+.coin-sym { font-family:var(--mono); font-size:10px; color:var(--muted); }
+.chg { font-family:var(--mono); font-size:10px; padding:1px 5px; border-radius:4px; }
 .chg.up   { color:var(--green); background:rgba(34,211,160,.1); }
 .chg.down { color:var(--red);   background:rgba(240,93,110,.1); }
 
 .coin-price-display { text-align:right; }
-.price-usd { font-family:var(--mono); font-size:15px; font-weight:700; }
-.price-idr { font-family:var(--mono); font-size:11px; color:var(--muted); margin-top:3px; }
+.price-usd { font-family:var(--mono); font-size:13px; font-weight:700; }
+.price-idr { font-family:var(--mono); font-size:10px; color:var(--muted); margin-top:2px; }
 
-/* bottom part: input + equivalents */
+/* bottom part: input */
 .card-bottom {
   border-top:1px solid var(--border);
-  padding:14px 18px 16px;
+  padding:8px 14px 10px;
   background:rgba(0,0,0,.15);
 }
 
 .input-row {
-  display:flex; align-items:center; gap:10px; margin-bottom:12px;
+  display:flex; align-items:center; gap:8px; margin-bottom:0;
 }
-.input-label { font-size:11px; color:var(--muted); font-family:var(--mono); white-space:nowrap; min-width:36px; }
+.input-label { font-size:10px; color:var(--muted); font-family:var(--mono); white-space:nowrap; min-width:32px; }
 .coin-amount-input {
   flex:1; background:var(--surface); border:1px solid var(--border);
-  border-radius:10px; padding:10px 14px;
-  font-family:var(--mono); font-size:16px; font-weight:700; color:var(--text);
+  border-radius:8px; padding:8px 12px;
+  font-family:var(--mono); font-size:14px; font-weight:700; color:var(--text);
   outline:none; transition:border-color .2s; width:100%;
 }
 .coin-amount-input:focus { border-color:var(--accent); }
-.coin-amount-input::placeholder { color:var(--muted); font-weight:400; }
+.coin-amount-input::placeholder { color:var(--muted); font-weight:400; font-size:12px; }
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
-
-/* equivalents grid */
-.equiv-grid {
-  display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr));
-  gap:8px;
-}
-.equiv-item {
-  background:var(--surface); border:1px solid var(--border); border-radius:10px;
-  padding:9px 12px;
-}
-.equiv-item .e-label { font-size:10px; color:var(--muted); font-family:var(--mono); margin-bottom:4px; }
-.equiv-item .e-val   { font-family:var(--mono); font-size:13px; font-weight:700; word-break:break-all; }
-.equiv-item.usd-eq { border-color:rgba(124,106,247,.25); background:var(--aglow); }
-.equiv-item.usd-eq .e-val { color:var(--accent); }
-.equiv-item.idr-eq { border-color:rgba(34,211,160,.2); background:rgba(34,211,160,.06); }
-.equiv-item.idr-eq .e-val { color:var(--green); }
 
 /* fiat section */
 .fiat-section {
@@ -257,14 +257,14 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 .empty { text-align:center; padding:36px 20px; color:var(--muted); font-size:14px; }
 
 @media (max-width:520px) {
-  .card-top { grid-template-columns:44px 1fr auto; gap:10px; padding:14px 14px 10px; }
-  .fiat-top { grid-template-columns:44px 1fr; gap:10px; padding:14px 14px 10px; }
+  .card-top { grid-template-columns:36px 1fr auto; gap:8px; padding:9px 12px 7px; }
+  .fiat-top { grid-template-columns:40px 1fr; gap:10px; padding:12px 14px 10px; }
   .fiat-bottom { grid-template-columns:1fr; }
-  .coin-logo { width:44px; height:44px; }
-  .fiat-icon { width:44px; height:44px; }
-  main { padding:0 12px; }
-  header { padding:11px 14px; }
-  .equiv-grid { grid-template-columns:repeat(auto-fill, minmax(130px, 1fr)); }
+  .coin-logo { width:36px; height:36px; }
+  .coin-logo img { width:24px; height:24px; }
+  .fiat-icon { width:40px; height:40px; }
+  main { padding:0 10px; }
+  header { padding:10px 12px; }
 }
 </style>
 </head>
@@ -827,6 +827,43 @@ async function pickCoin(id, name, sym) {
 
   renderCoins();
   if (activeField && amounts[activeField]) propagate(activeField, amounts[activeField]);
+}
+
+/* ───────────────────────────────────────────
+   SERVICE WORKER (PWA offline cache)
+─────────────────────────────────────────── */
+if ('serviceWorker' in navigator) {
+  const swCode = `
+    const CACHE = 'kurscrypto-v1';
+    const PRECACHE = [location.href];
+    self.addEventListener('install', e => {
+      e.waitUntil(caches.open(CACHE).then(c => c.addAll(PRECACHE)));
+      self.skipWaiting();
+    });
+    self.addEventListener('activate', e => {
+      e.waitUntil(caches.keys().then(keys =>
+        Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+      ));
+      self.clients.claim();
+    });
+    self.addEventListener('fetch', e => {
+      if (e.request.method !== 'GET') return;
+      // network-first for API calls, cache-first for app shell
+      const isAPI = e.request.url.includes('api.');
+      if (isAPI) {
+        e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+      } else {
+        e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).then(res => {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+          return res;
+        })));
+      }
+    });
+  `;
+  const blob = new Blob([swCode], { type: 'application/javascript' });
+  const swUrl = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl).catch(() => {});
 }
 
 /* ───────────────────────────────────────────
