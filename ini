@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Kurs Minas</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background-color: #161b22;
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid #30363d;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            width: 350px;
+            text-align: center;
+        }
+        h2 { color: #58a6ff; margin-bottom: 5px; }
+        .kurs-info { font-size: 0.9rem; color: #8b949e; margin-bottom: 20px; }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #30363d;
+            background: #0d1117;
+            color: white;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #238636;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        button:hover { background-color: #2ea043; }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #0d1117;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            border-left: 4px solid #58a6ff;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Kalkulator Kurs</h2>
+    <div class="kurs-info" id="displayKurs">Memuat data kurs...</div>
+    
+    <input type="number" id="usdInput" placeholder="Masukkan jumlah USD..." step="any">
+    <button onclick="hitungIDR()">Convert ke Rupiah</button>
+
+    <div id="resultBox" class="result">
+        <span style="font-size: 0.8rem; display: block; color: #8b949e;">Hasil Estimasi:</span>
+        <strong id="idrOutput">Rp 0</strong>
+    </div>
+</div>
+
+<script>
+    // URL web porto elu
+    const proxyUrl = "https://api.allorigins.win/get?url=";
+    const targetUrl = "https://romini1993.github.io/PORTOFOLIO/";
+    let kursGlobal = 0;
+
+    // Fungsi narik data kurs dari web elu pake Proxy biar gak kena CORS
+    async function getLiveKurs() {
+        try {
+            const response = await fetch(proxyUrl + encodeURIComponent(targetUrl));
+            const data = await response.json();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(data.contents, 'text/html');
+            
+            // Cari teks "USD/IDR: 17.363" di elemen span
+            const allSpans = doc.querySelectorAll('span');
+            let foundText = "";
+            allSpans.forEach(span => {
+                if(span.innerText.includes("USD/IDR")) {
+                    foundText = span.innerText;
+                }
+            });
+
+            // Ambil angkanya doang
+            const cleanKurs = foundText.match(/\d+\.\d+|\d+/g).join('').replace('.', '');
+            kursGlobal = parseFloat(cleanKurs);
+            
+            document.getElementById('displayKurs').innerText = "Kurs Web Porto: Rp " + kursGlobal.toLocaleString('id-ID');
+        } catch (error) {
+            console.error("Gagal ambil kurs:", error);
+            document.getElementById('displayKurs').innerText = "Gagal muat kurs. Cek koneksi.";
+        }
+    }
+
+    function hitungIDR() {
+        const usd = document.getElementById('usdInput').value;
+        const resultBox = document.getElementById('resultBox');
+        const idrOutput = document.getElementById('idrOutput');
+
+        if (usd && kursGlobal > 0) {
+            const total = usd * kursGlobal;
+            idrOutput.innerText = new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(total);
+            resultBox.style.display = 'block';
+        } else {
+            alert("Masukin angka USD dulu bro!");
+        }
+    }
+
+    // Jalanin fungsi ambil data pas web dibuka
+    getLiveKurs();
+</script>
+
+</body>
+</html>
