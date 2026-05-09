@@ -3,127 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kurs Realtime Bro</title>
+    <title>Kurs Realtime Fix</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #0b0e11; color: #eaecef; font-family: 'Inter', sans-serif; }
-        .card-crypto { background: #1e2329; border: 1px solid #30363d; transition: 0.3s; }
-        .card-crypto:hover { border-color: #f0b90b; }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        body { background-color: #1a1a1a; color: white; font-family: sans-serif; }
+        .card { background: #2d2d2d; border-radius: 15px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .coin-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #3d3d3d; }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
+<body class="p-6">
+    <div class="max-w-md mx-auto">
+        <h1 class="text-2xl font-bold text-center text-yellow-500 mb-6">KURS REALTIME</h1>
 
-    <div class="w-full max-w-md">
-        <!-- Header -->
-        <div class="text-center mb-6">
-            <h1 class="text-3xl font-extrabold text-yellow-500">KURS <span class="text-white">CRYPTO</span></h1>
-            <p class="text-gray-400 text-sm mt-1">Harga Realtime via Binance API</p>
-        </div>
-
-        <!-- Card Utama (USD to IDR) -->
-        <div class="card-crypto rounded-2xl p-6 mb-4 shadow-xl">
-            <label class="text-xs font-bold text-gray-500 uppercase mb-2 block">Konversi USD ke IDR</label>
-            <div class="relative mb-4">
-                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-yellow-500 font-bold">$</span>
-                <input type="number" id="inputUsd" value="1" 
-                    class="w-full bg-[#2b3139] border-none rounded-xl py-4 pl-10 pr-4 text-2xl font-bold focus:ring-2 focus:ring-yellow-500 outline-none">
-            </div>
+        <!-- Konverter -->
+        <div class="card mb-6">
+            <p class="text-gray-400 text-sm mb-2">Input USD</p>
+            <input type="number" id="usdInput" value="1" class="w-full bg-black border border-gray-600 rounded p-3 text-xl font-bold mb-4 outline-none focus:border-yellow-500">
             
-            <div class="bg-[#2b3139] rounded-xl p-4 border-l-4 border-yellow-500">
-                <p class="text-xs text-gray-400 mb-1">Hasil Estimasi (IDR)</p>
-                <div id="resultIdr" class="text-2xl font-bold text-white tracking-wide">Rp Loading...</div>
+            <p class="text-gray-400 text-sm mb-1">Estimasi IDR</p>
+            <div id="idrResult" class="text-2xl font-bold text-green-400">Rp 0</div>
+        </div>
+
+        <!-- Daftar Koin -->
+        <div class="card">
+            <h2 class="font-bold mb-4 border-bottom border-gray-500">Harga Crypto (USD)</h2>
+            <div id="cryptoList">
+                <p class="text-center text-gray-500">Narik data...</p>
             </div>
         </div>
 
-        <!-- List Koin Lain -->
-        <div class="grid grid-cols-1 gap-3" id="coinList">
-            <!-- Item koin bakal muncul di sini -->
-        </div>
-
-        <div class="text-center mt-6">
-            <span id="lastUpdate" class="text-[10px] text-gray-600 uppercase">Mengambil data...</span>
-        </div>
+        <p id="status" class="text-center text-[10px] text-gray-600 mt-4 uppercase">Loading...</p>
     </div>
 
     <script>
-        const coins = [
-            { symbol: 'BTCUSDT', name: 'Bitcoin', icon: 'fa-bitcoin', color: 'text-orange-500' },
-            { symbol: 'ETHUSDT', name: 'Ethereum', icon: 'fa-ethereum', color: 'text-blue-400' },
-            { symbol: 'SOLUSDT', name: 'Solana', icon: 'fa-s', color: 'text-purple-400' },
-            { symbol: 'BNBUSDT', name: 'Binance', icon: 'fa-coins', color: 'text-yellow-500' }
-        ];
-
-        // Buat elemen list koin
-        const coinContainer = document.getElementById('coinList');
-        coins.forEach(coin => {
-            coinContainer.innerHTML += `
-                <div class="card-crypto rounded-xl p-4 flex justify-between items-center">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-[#2b3139] rounded-full flex items-center justify-center ${coin.color}">
-                            <i class="fab ${coin.icon} text-lg"></i>
-                        </div>
-                        <div>
-                            <div class="font-bold text-sm">${coin.name}</div>
-                            <div class="text-[10px] text-gray-500">${coin.symbol}</div>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <div id="price-${coin.symbol}" class="font-mono font-bold text-white text-sm">$ --</div>
-                        <div id="change-${coin.symbol}" class="text-[10px] font-bold">-- %</div>
-                    </div>
-                </div>
-            `;
-        });
-
-        async function updateData() {
+        // Pakai API Coingecko yang lebih bersahabat sama browser
+        async function getPrices() {
             try {
-                // 1. Ambil Harga USDT/IDR (Buat Kurs USD ke Rupiah)
-                // Kita pake estimasi Binance P2P / Tokocrypto yang stabil di kisaran 15k-16k
-                const resKurs = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=USDTBIDR');
-                const dataKurs = await resKurs.json();
-                const rateIdr = parseFloat(dataKurs.price);
+                const url = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin,tether&vs_currencies=usd,idr';
+                const response = await fetch(url);
+                const data = await response.json();
 
-                // Update konverter
-                const inputUsd = document.getElementById('inputUsd').value;
-                const resultIdr = document.getElementById('resultIdr');
+                // 1. Update Kurs IDR (Pake harga Tether/USDT ke IDR biar akurat)
+                const rateIdr = data.tether.idr;
+                const inputUsd = document.getElementById('usdInput').value;
                 const totalIdr = inputUsd * rateIdr;
 
-                resultIdr.innerText = new Intl.NumberFormat('id-IDR', {
+                document.getElementById('idrResult').innerText = new Intl.NumberFormat('id-IDR', {
                     style: 'currency',
                     currency: 'IDR',
                     maximumFractionDigits: 0
                 }).format(totalIdr);
 
-                // 2. Ambil Harga Koin Lain
-                for (const coin of coins) {
-                    const resCoin = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${coin.symbol}`);
-                    const dataCoin = await resCoin.json();
-                    
-                    const priceEl = document.getElementById(`price-${coin.symbol}`);
-                    const changeEl = document.getElementById(`change-${coin.symbol}`);
-                    
-                    const price = parseFloat(dataCoin.lastPrice).toLocaleString(undefined, { minimumFractionDigits: 2 });
-                    const change = parseFloat(dataCoin.priceChangePercent).toFixed(2);
-                    
-                    priceEl.innerText = `$ ${price}`;
-                    changeEl.innerText = `${change > 0 ? '+' : ''}${change}%`;
-                    changeEl.className = `text-[10px] font-bold ${change >= 0 ? 'text-green-500' : 'text-red-500'}`;
-                }
+                // 2. Update List Koin
+                const cryptoData = [
+                    { name: 'Bitcoin', price: data.bitcoin.usd },
+                    { name: 'Ethereum', price: data.ethereum.usd },
+                    { name: 'Solana', price: data.solana.usd },
+                    { name: 'BNB', price: data.binancecoin.usd }
+                ];
 
-                document.getElementById('lastUpdate').innerText = "Terakhir Update: " + new Date().toLocaleTimeString();
+                let html = '';
+                cryptoData.forEach(coin => {
+                    html += `
+                        <div class="coin-row">
+                            <span>${coin.name}</span>
+                            <span class="font-mono text-yellow-500 font-bold">$${coin.price.toLocaleString()}</span>
+                        </div>
+                    `;
+                });
+                document.getElementById('cryptoList').innerHTML = html;
+                document.getElementById('status').innerText = "Update Terakhir: " + new Date().toLocaleTimeString();
 
-            } catch (err) {
-                console.error("Gagal ambil data:", err);
-                document.getElementById('lastUpdate').innerText = "Koneksi Bermasalah!";
+            } catch (error) {
+                console.error(error);
+                document.getElementById('status').innerText = "Gagal koneksi. Cek internet elu, Bro.";
             }
         }
 
-        // Jalankan
-        updateData();
-        setInterval(updateData, 5000); // Update tiap 5 detik biar makin jos
-        document.getElementById('inputUsd').addEventListener('input', updateData);
+        // Jalankan pas pertama buka
+        getPrices();
+
+        // Update otomatis tiap 15 detik
+        setInterval(getPrices, 15000);
+
+        // Update pas input diketik
+        document.getElementById('usdInput').addEventListener('input', getPrices);
     </script>
 </body>
 </html>
