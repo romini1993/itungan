@@ -1,135 +1,100 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulator Kurs Minas</title>
+    <title>Realtime Exchange Rate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0d1117;
-            color: #c9d1d9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .card {
-            background-color: #161b22;
-            padding: 2rem;
-            border-radius: 12px;
-            border: 1px solid #30363d;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-            width: 350px;
-            text-align: center;
-        }
-        h2 { color: #58a6ff; margin-bottom: 5px; }
-        .kurs-info { font-size: 0.9rem; color: #8b949e; margin-bottom: 20px; }
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 6px;
-            border: 1px solid #30363d;
-            background: #0d1117;
-            color: white;
-            box-sizing: border-box;
-            font-size: 1rem;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #238636;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1rem;
-        }
-        button:hover { background-color: #2ea043; }
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            background: #0d1117;
-            border-radius: 6px;
-            font-size: 1.1rem;
-            border-left: 4px solid #58a6ff;
-            display: none;
+        body { background-color: #0f172a; color: white; }
+        .glass-card { 
+            background: rgba(30, 41, 59, 0.7); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
         }
     </style>
 </head>
-<body>
+<body class="min-h-screen p-4 md:p-8">
+    <div class="max-w-md mx-auto">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+            <h1 class="text-2xl font-bold tracking-tight">Kurs <span class="text-blue-400">Realtime</span></h1>
+            <div id="status" class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full border border-green-500/50">
+                Live Data
+            </div>
+        </div>
 
-<div class="card">
-    <h2>Kalkulator Kurs</h2>
-    <div class="kurs-info" id="displayKurs">Memuat data kurs...</div>
-    
-    <input type="number" id="usdInput" placeholder="Masukkan jumlah USD..." step="any">
-    <button onclick="hitungIDR()">Convert ke Rupiah</button>
+        <!-- Main Card -->
+        <div class="glass-card rounded-3xl p-6 shadow-2xl mb-6">
+            <div class="flex flex-col gap-4">
+                <!-- Input Amount -->
+                <div>
+                    <label class="text-gray-400 text-sm mb-2 block">Jumlah USD</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+                        <input type="number" id="amount" value="1" 
+                            class="w-full bg-slate-900/50 border border-slate-700 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xl font-semibold">
+                    </div>
+                </div>
 
-    <div id="resultBox" class="result">
-        <span style="font-size: 0.8rem; display: block; color: #8b949e;">Hasil Estimasi:</span>
-        <strong id="idrOutput">Rp 0</strong>
+                <!-- Result -->
+                <div class="bg-slate-900/80 rounded-2xl p-6 text-center border border-blue-500/30">
+                    <p class="text-gray-400 text-sm mb-1">Estimasi IDR (Bybit)</p>
+                    <h2 id="result-idr" class="text-3xl font-bold text-blue-400">Rp 0</h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details List -->
+        <div class="space-y-3">
+            <div class="glass-card rounded-2xl p-4 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="bg-yellow-500/20 p-2 rounded-lg text-yellow-500"><i class="fab fa-bitcoin"></i></div>
+                    <span class="font-medium">BTC/USDT</span>
+                </div>
+                <span id="btc-price" class="font-mono text-gray-300">Loading...</span>
+            </div>
+            <!-- Tambahin pair lain di sini nyontek pola di atas -->
+        </div>
+
+        <p class="text-center text-gray-500 text-[10px] mt-8">Data diupdate otomatis setiap 30 detik</p>
     </div>
-</div>
 
-<script>
-    // URL web porto elu
-    const proxyUrl = "https://api.allorigins.win/get?url=";
-    const targetUrl = "https://romini1993.github.io/PORTOFOLIO/";
-    let kursGlobal = 0;
-
-    // Fungsi narik data kurs dari web elu pake Proxy biar gak kena CORS
-    async function getLiveKurs() {
-        try {
-            const response = await fetch(proxyUrl + encodeURIComponent(targetUrl));
-            const data = await response.json();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(data.contents, 'text/html');
-            
-            // Cari teks "USD/IDR: 17.363" di elemen span
-            const allSpans = doc.querySelectorAll('span');
-            let foundText = "";
-            allSpans.forEach(span => {
-                if(span.innerText.includes("USD/IDR")) {
-                    foundText = span.innerText;
+    <script>
+        // Nyontoh logika dari file PORTOFOLIO elu (pake Bybit API)
+        async function fetchData() {
+            try {
+                // Ambil harga USD to IDR via USDT Bybit (biasanya selisih tipis sama kurs bank, tapi lebih realtime buat p2p)
+                const response = await fetch('https://api.bybit.com/v5/market/tickers?category=spot&symbol=USDTIDR');
+                const data = await response.json();
+                
+                if (data.result && data.result.list) {
+                    const price = parseFloat(data.result.list[0].lastPrice);
+                    const amount = document.getElementById('amount').value;
+                    const total = price * amount;
+                    
+                    document.getElementById('result-idr').innerText = new Intl.NumberFormat('id-IDR', {
+                        style: 'currency',
+                        currency: 'IDR',
+                        maximumFractionDigits: 0
+                    }).format(total);
+                    
+                    // Update BTC juga sekalian buat pelengkap
+                    const btcRes = await fetch('https://api.bybit.com/v5/market/tickers?category=spot&symbol=BTCUSDT');
+                    const btcData = await btcRes.json();
+                    document.getElementById('btc-price').innerText = '$' + parseFloat(btcData.result.list[0].lastPrice).toLocaleString();
                 }
-            });
-
-            // Ambil angkanya doang
-            const cleanKurs = foundText.match(/\d+\.\d+|\d+/g).join('').replace('.', '');
-            kursGlobal = parseFloat(cleanKurs);
-            
-            document.getElementById('displayKurs').innerText = "Kurs Web Porto: Rp " + kursGlobal.toLocaleString('id-ID');
-        } catch (error) {
-            console.error("Gagal ambil kurs:", error);
-            document.getElementById('displayKurs').innerText = "Gagal muat kurs. Cek koneksi.";
+            } catch (error) {
+                console.error("Gagal narik data:", error);
+                document.getElementById('result-idr').innerText = "Error API";
+            }
         }
-    }
 
-    function hitungIDR() {
-        const usd = document.getElementById('usdInput').value;
-        const resultBox = document.getElementById('resultBox');
-        const idrOutput = document.getElementById('idrOutput');
-
-        if (usd && kursGlobal > 0) {
-            const total = usd * kursGlobal;
-            idrOutput.innerText = new Intl.NumberFormat('id-ID', {
-                style: 'currency',
-                currency: 'IDR',
-                minimumFractionDigits: 0
-            }).format(total);
-            resultBox.style.display = 'block';
-        } else {
-            alert("Masukin angka USD dulu bro!");
-        }
-    }
-
-    // Jalanin fungsi ambil data pas web dibuka
-    getLiveKurs();
-</script>
-
+        // Jalankan fungsi
+        fetchData();
+        setInterval(fetchData, 30000); // Update tiap 30 detik
+        document.getElementById('amount').addEventListener('input', fetchData);
+    </script>
 </body>
 </html>
