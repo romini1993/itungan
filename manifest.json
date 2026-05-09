@@ -1,0 +1,18 @@
+{
+  "name": "Kurs Crypto",
+  "short_name": "KursCrypto",
+  "description": "Konverter harga crypto realtime — USD, IDR, dan koin favoritmu.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a0f",
+  "theme_color": "#0a0a0f",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1490/1490849.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
