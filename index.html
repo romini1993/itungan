@@ -3,142 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kurs Realtime Pro</title>
+    <title>KURS REALTIME PRO - MULTI</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap');
-        body { background-color: #050505; color: #ffffff; font-family: 'Space Grotesk', sans-serif; }
-        .glass-card { background: rgba(20, 20, 20, 0.8); border: 1px solid #222; backdrop-filter: blur(10px); }
-        .price-up { color: #00ff88; transition: all 0.5s; }
-        .price-down { color: #ff3366; transition: all 0.5s; }
-        .crypto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+        body { background-color: #0c0c0c; color: white; font-family: 'Inter', sans-serif; }
+        .glass { background: #161616; border: 1px solid #2a2a2a; border-radius: 20px; }
+        input { background: #000 !important; border: 1px solid #333 !important; }
+        input:focus { border-color: #f0b90b !important; outline: none; }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-10">
+<body class="p-4 md:p-10 flex justify-center">
 
-    <div class="max-w-4xl mx-auto">
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+    <div class="w-full max-w-4xl">
+        <!-- HEADER -->
+        <div class="mb-10 flex justify-between items-end">
             <div>
-                <h1 class="text-4xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
-                    REALTIME TRACKER
-                </h1>
-                <p class="text-gray-500 text-sm uppercase tracking-widest">Live Market Data via WebSocket</p>
+                <h1 class="text-4xl font-black text-yellow-500 tracking-tighter italic">KURS REALTIME</h1>
+                <p class="text-gray-500 text-xs uppercase tracking-widest">Multi-Coin Dashboard</p>
             </div>
-            <div id="connection-status" class="flex items-center gap-2 px-4 py-2 rounded-full border border-yellow-500/30 text-yellow-500 text-xs">
-                <div class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></div> Connecting...
-            </div>
+            <div class="text-[10px] text-gray-700 font-mono">STABLE VERSION 4.0</div>
         </div>
 
-        <!-- Main Converter -->
-        <div class="glass-card rounded-[2rem] p-8 mb-8 shadow-2xl relative overflow-hidden">
-            <div class="relative z-10 grid md:grid-cols-2 gap-8 items-center">
-                <div>
-                    <label class="text-xs font-bold text-gray-500 mb-2 block uppercase">Input Amount (USD)</label>
-                    <input type="number" id="usdInput" value="1" 
-                        class="w-full bg-transparent text-5xl font-bold outline-none border-b-2 border-gray-800 focus:border-blue-500 py-2 transition-all">
-                </div>
-                <div class="bg-gradient-to-br from-blue-600/10 to-emerald-600/10 rounded-2xl p-6 border border-white/5">
-                    <p class="text-xs font-bold text-blue-400 mb-1 uppercase">Estimated IDR</p>
-                    <div id="idrOutput" class="text-3xl font-bold font-mono">Rp 0</div>
-                    <p id="current-rate" class="text-[10px] text-gray-500 mt-2">Rate: --</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- KOLOM KIRI: KONVERTER USD TO IDR -->
+            <div class="md:col-span-1">
+                <div class="glass p-6 sticky top-10">
+                    <h2 class="text-sm font-bold text-gray-400 mb-6 uppercase">Calculator</h2>
+                    
+                    <div class="mb-6">
+                        <label class="text-[10px] text-gray-500 block mb-1">JUMLAH USD</label>
+                        <input type="number" id="usd" value="1" class="w-full p-4 text-2xl font-bold rounded-xl text-yellow-500">
+                    </div>
+
+                    <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
+                        <p class="text-[10px] text-yellow-500 mb-1">ESTIMASI RUPIAH (IDR)</p>
+                        <div id="idr" class="text-2xl font-black">Rp 16.350</div>
+                        <p class="text-[9px] text-gray-600 mt-2 italic">*Estimasi Kurs: Rp 16.350/USD</p>
+                    </div>
                 </div>
             </div>
+
+            <!-- KOLOM KANAN: MULTI COIN MARKET -->
+            <div class="md:col-span-2 space-y-4">
+                <!-- Widget BTC -->
+                <div class="glass overflow-hidden">
+                    <div style="height:62px; background-color: #161616;">
+                        <iframe src="https://widget.coinlib.io/widget?type=horizontal_v2&theme=dark&pref_coin_id=1505&invert_hover=no" width="100%" height="62px" scrolling="auto" marginwidth="0" marginheight="0" frameborder="0" border="0" style="border:0;margin:0;padding:0;"></iframe>
+                    </div>
+                </div>
+
+                <!-- Multi Coin List Widget -->
+                <div class="glass p-2">
+                    <div style="height:440px;">
+                        <iframe src="https://widget.coinlib.io/widget?type=full_v2&theme=dark&cnt=6&pref_coin_id=1505&graph=yes" width="100%" height="440px" scrolling="auto" marginwidth="0" marginheight="0" frameborder="0" border="0" style="border:0;margin:0;padding:0;"></iframe>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-        <!-- Multi-Coin Grid -->
-        <div class="crypto-grid" id="coin-container">
-            <!-- Koin-koin bakal muncul di sini otomatis -->
+        <div class="mt-10 text-center text-gray-800 text-[10px] uppercase tracking-[0.5em]">
+            Realtime Data Sync • Satria Dashboard
         </div>
     </div>
 
     <script>
-        const symbols = ['btcusdt', 'ethusdt', 'solusdt', 'bnbusdt', 'dogeusdt', 'xrpusdt'];
-        const coinNames = {
-            'btcusdt': { name: 'Bitcoin', icon: 'fa-bitcoin' },
-            'ethusdt': { name: 'Ethereum', icon: 'fa-ethereum' },
-            'solusdt': { name: 'Solana', icon: 'fa-s' },
-            'bnbusdt': { name: 'Binance', icon: 'fa-coins' },
-            'dogeusdt': { name: 'Dogecoin', icon: 'fa-dog' },
-            'xrpusdt': { name: 'XRP', icon: 'fa-x' }
-        };
-
-        // Bikin elemen koin
-        const container = document.getElementById('coin-container');
-        symbols.forEach(s => {
-            container.innerHTML += `
-                <div class="glass-card rounded-2xl p-5 hover:border-blue-500/50 transition-all group">
-                    <div class="flex justify-between items-start mb-4">
-                        <i class="fab ${coinNames[s].icon} text-2xl text-gray-400 group-hover:text-blue-400 transition-colors"></i>
-                        <span id="pct-${s}" class="text-[10px] font-bold">--</span>
-                    </div>
-                    <p class="text-xs text-gray-500 font-bold uppercase">${coinNames[s].name}</p>
-                    <p id="price-${s}" class="text-lg font-mono font-bold mt-1">$ --</p>
-                </div>
-            `;
-        });
-
-        // Pakai WebSocket Binance (Paling kenceng & jarang diblokir)
-        const ws = new WebSocket('wss://stream.binance.com:9443/ws/' + symbols.map(s => `${s}@ticker`).join('/'));
+        // Logika kalkulator manual biar gak kena blokir browser
+        const usdInput = document.getElementById('usd');
+        const idrOutput = document.getElementById('idr');
         
-        let usdtIdrRate = 16300; // Default rate
+        // Harga kurs rata-rata saat ini (Bisa lu ubah angka 16350 sesuai kurs hari ini)
+        const KURS_SAAT_INI = 16350;
 
-        ws.onopen = () => {
-            const status = document.getElementById('connection-status');
-            status.innerHTML = '<div class="w-2 h-2 rounded-full bg-emerald-500"></div> Connected';
-            status.classList.replace('text-yellow-500', 'text-emerald-500');
-            status.classList.replace('border-yellow-500/30', 'border-emerald-500/30');
-        };
-
-        ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            const symbol = data.s.toLowerCase();
-            const price = parseFloat(data.c);
-            const change = parseFloat(data.P);
-
-            // Update Harga di Grid
-            const priceEl = document.getElementById(`price-${symbol}`);
-            const pctEl = document.getElementById(`pct-${symbol}`);
-            
-            if (priceEl) {
-                const oldPrice = parseFloat(priceEl.innerText.replace('$ ', '').replace(',', ''));
-                priceEl.innerText = '$ ' + price.toLocaleString(undefined, { minimumFractionDigits: 2 });
-                priceEl.className = `text-lg font-mono font-bold mt-1 ${price >= oldPrice ? 'price-up' : 'price-down'}`;
-            }
-
-            if (pctEl) {
-                pctEl.innerText = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
-                pctEl.className = `text-[10px] font-bold ${change >= 0 ? 'text-emerald-400' : 'text-rose-500'}`;
-            }
-
-            // Khusus ambil rate IDR via kalkulasi manual atau simulasi kenceng
-            // Karena binance ga ada stream langsung IDR yang stabil, kita pake pembulatan market
-            updateConverter();
-        };
-
-        function updateConverter() {
-            const input = document.getElementById('usdInput').value;
-            // Kita pake rate stabil sekitar 16k, atau elu bisa ganti sesuai keinginan
-            const rate = 16325; 
-            const total = input * rate;
-
-            document.getElementById('idrOutput').innerText = new Intl.NumberFormat('id-IDR', {
-                style: 'currency',
-                currency: 'IDR',
-                maximumFractionDigits: 0
-            }).format(total);
-            
-            document.getElementById('current-rate').innerText = `Current Rate: Rp ${rate.toLocaleString()}`;
+        function updateKurs() {
+            const val = usdInput.value;
+            const hasil = val * KURS_SAAT_INI;
+            idrOutput.innerText = "Rp " + hasil.toLocaleString('id-IDR');
         }
 
-        document.getElementById('usdInput').addEventListener('input', updateConverter);
-        updateConverter();
-
-        ws.onerror = (e) => {
-            console.log("WS Error: ", e);
-            document.getElementById('connection-status').innerText = "Connection Failed";
-        };
+        usdInput.addEventListener('input', updateKurs);
+        updateKurs(); // Jalankan pas start
     </script>
 </body>
 </html>
