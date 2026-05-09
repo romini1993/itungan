@@ -302,11 +302,7 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
       <span class="lbl">ETH/USD</span>
       <span class="val" id="stripETH">—</span>
     </div>
-    <div class="rate-divider"></div>
-    <div class="rate-strip-item">
-      <span class="lbl">Market</span>
-      <span class="val" id="stripTime">realtime</span>
-    </div>
+
   </div>
 
   <!-- fiat converter -->
@@ -329,7 +325,7 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
       </div>
       <div class="fiat-input-wrap">
         <span class="fiat-lbl">🇮🇩 IDR · Rupiah</span>
-        <input class="fiat-input" type="number" id="idrIn" placeholder="0" oninput="fromFiat('idr')" />
+        <input class="fiat-input" type="text" inputmode="numeric" id="idrIn" placeholder="0" oninput="fromFiat('idr')" />
       </div>
     </div>
   </div>
@@ -497,7 +493,6 @@ async function init() {
     await Promise.all([fetchRate(), fetchPrices()]);
     const now = new Date().toLocaleTimeString('id-ID');
     document.getElementById('updLabel').textContent = 'Update: ' + now;
-    document.getElementById('stripTime').textContent = now;
   } catch {
     document.getElementById('errBar').style.display = 'block';
   }
@@ -541,7 +536,7 @@ function propagate(sourceSym, sourceAmount) {
   const usdEl = document.getElementById('usdIn');
   const idrEl = document.getElementById('idrIn');
   if (sourceSym !== 'usd') usdEl.value = usdVal > 0 ? niceFmt(usdVal, 'usd') : '';
-  if (sourceSym !== 'idr') idrEl.value = usdVal > 0 ? Math.round(usdVal * rate) : '';
+  if (sourceSym !== 'idr') idrEl.value = usdVal > 0 ? Math.round(usdVal * rate).toLocaleString('id-ID') : '';
 
   // update each coin input + equivalents
   wl.forEach(coin => {
@@ -569,17 +564,18 @@ function fromFiat(which) {
   const usdEl = document.getElementById('usdIn');
   const idrEl = document.getElementById('idrIn');
   if (which === 'usd') {
-    const v = parseFloat(usdEl.value) || 0;
+    const v = parseFloat(usdEl.value.replace(/[^\d.]/g, '')) || 0;
     propagate('usd', v);
   } else {
-    const v = parseFloat(idrEl.value) || 0;
+    const v = parseFloat(idrEl.value.replace(/[^\d.]/g, '')) || 0;
     propagate('idr', v);
   }
 }
 
 function onCoinInput(sym) {
   const el = document.getElementById('input_' + sym);
-  const v  = parseFloat(el.value) || 0;
+  const raw = el.value.replace(/[^\d.eE+-]/g, '');
+  const v   = parseFloat(raw) || 0;
   propagate(sym, v);
 }
 
@@ -698,16 +694,6 @@ function renderCoins() {
             oninput="onCoinInput('${sym}')"
           />
         </div>
-        <div class="equiv-grid">
-          <div class="equiv-item usd-eq">
-            <div class="e-label">≈ USD</div>
-            <div class="e-val" id="eq_usd_${sym}">—</div>
-          </div>
-          <div class="equiv-item idr-eq">
-            <div class="e-label">≈ IDR</div>
-            <div class="e-val" id="eq_idr_${sym}">—</div>
-          </div>
-
       </div>
     </div>`;
   }).join('');
