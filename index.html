@@ -4,177 +4,206 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Kurs Crypto</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
   --bg: #0a0a0f;
   --surface: #111118;
   --card: #16161f;
   --border: rgba(255,255,255,0.07);
-  --border-hover: rgba(255,255,255,0.14);
+  --bh: rgba(255,255,255,0.14);
   --text: #f0eff8;
   --muted: #7a7990;
   --accent: #7c6af7;
-  --accent-glow: rgba(124,106,247,0.15);
+  --aglow: rgba(124,106,247,0.15);
   --green: #22d3a0;
   --red: #f05d6e;
+  --active: rgba(124,106,247,0.12);
+  --active-border: rgba(124,106,247,0.5);
   --mono: 'Space Mono', monospace;
   --sans: 'DM Sans', sans-serif;
 }
+body { background:var(--bg); color:var(--text); font-family:var(--sans); min-height:100vh; padding-bottom:80px; }
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--sans);
-  min-height: 100vh;
-  padding-bottom: 80px;
-}
-
+/* header */
 header {
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(10,10,15,0.92);
-  backdrop-filter: blur(18px);
-  border-bottom: 1px solid var(--border);
-  padding: 13px 24px;
-  display: flex; align-items: center; justify-content: space-between;
+  position:sticky; top:0; z-index:100;
+  background:rgba(10,10,15,.92); backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--border);
+  padding:13px 24px; display:flex; align-items:center; justify-content:space-between;
 }
-.logo { font-family: var(--mono); font-size: 14px; letter-spacing: .1em; color: var(--accent); }
-.logo span { color: var(--muted); }
-.hdr-right { display: flex; align-items: center; gap: 10px; }
-.upd-label { font-size: 10px; color: var(--muted); font-family: var(--mono); }
-.refresh-btn {
-  background: none; border: 1px solid var(--border); color: var(--muted);
-  border-radius: 8px; padding: 5px 11px; font-size: 12px;
-  cursor: pointer; font-family: var(--sans);
-  display: flex; align-items: center; gap: 6px; transition: all .2s;
+.logo { font-family:var(--mono); font-size:14px; letter-spacing:.1em; color:var(--accent); }
+.logo span { color:var(--muted); }
+.hdr-r { display:flex; align-items:center; gap:10px; }
+.upd { font-size:10px; color:var(--muted); font-family:var(--mono); }
+.rbtn {
+  background:none; border:1px solid var(--border); color:var(--muted);
+  border-radius:8px; padding:5px 11px; font-size:12px;
+  cursor:pointer; font-family:var(--sans); display:flex; align-items:center; gap:6px; transition:all .2s;
 }
-.refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
-.refresh-btn.spin svg { animation: spin .8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
+.rbtn:hover { border-color:var(--accent); color:var(--accent); }
+.rbtn.spin svg { animation:spin .8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
 
-main { max-width: 860px; margin: 0 auto; padding: 0 20px; }
+main { max-width:860px; margin:0 auto; padding:0 20px; }
 
-/* converter */
-.conv-wrap {
-  margin-top: 26px;
-  background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+/* top rate strip */
+.rate-strip {
+  margin-top:22px;
+  background:var(--card); border:1px solid var(--border); border-radius:14px;
+  padding:12px 20px; display:flex; align-items:center; justify-content:space-between; gap:16px;
+  flex-wrap:wrap;
 }
-.conv-top {
-  padding: 18px 22px 0;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.conv-lbl { font-size: 10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); font-family:var(--mono); }
-.rate-badge {
-  font-family:var(--mono); font-size:11px;
-  background:var(--accent-glow); color:var(--accent);
-  border:1px solid rgba(124,106,247,.25); border-radius:6px; padding:3px 10px;
-}
-.conv-grid {
-  display:grid; grid-template-columns:1fr auto 1fr;
-  padding:18px 22px 22px; align-items:center;
-}
-.cur-box {
-  background:var(--surface); border:1px solid var(--border);
-  border-radius:14px; padding:15px 17px; transition:border-color .2s;
-}
-.cur-box:focus-within { border-color:var(--accent); }
-.cur-box label {
-  display:flex; align-items:center; gap:7px;
-  font-size:10px; color:var(--muted); letter-spacing:.08em;
-  margin-bottom:8px; font-family:var(--mono);
-}
-.flag { font-size:17px; line-height:1; }
-.cur-box input {
-  width:100%; background:none; border:none; outline:none;
-  color:var(--text); font-family:var(--mono); font-size:22px; font-weight:700;
-}
-.cur-box input::placeholder { color:var(--muted); }
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
+.rate-strip-item { display:flex; flex-direction:column; align-items:center; gap:3px; flex:1; min-width:100px; }
+.rate-strip-item .lbl { font-size:10px; color:var(--muted); font-family:var(--mono); letter-spacing:.08em; }
+.rate-strip-item .val { font-family:var(--mono); font-size:13px; font-weight:700; color:var(--text); }
+.rate-divider { width:1px; height:30px; background:var(--border); flex-shrink:0; }
 
-.swap-btn {
-  display:flex; align-items:center; justify-content:center;
-  width:38px; height:38px;
-  background:var(--surface); border:1px solid var(--border); border-radius:50%;
-  cursor:pointer; transition:all .2s; margin:0 12px; flex-shrink:0; color:var(--muted);
-}
-.swap-btn:hover { border-color:var(--accent); color:var(--accent); transform:rotate(180deg); }
-
-/* section */
+/* section head */
 .sec-head {
   display:flex; align-items:center; justify-content:space-between;
-  margin:32px 0 14px;
+  margin:28px 0 14px;
 }
 .sec-title { font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); font-family:var(--mono); }
-
 .add-btn {
   display:flex; align-items:center; gap:6px;
-  background:var(--accent-glow); border:1px solid rgba(124,106,247,.3);
+  background:var(--aglow); border:1px solid rgba(124,106,247,.3);
   color:var(--accent); border-radius:10px; padding:7px 14px;
-  font-size:13px; cursor:pointer; font-family:var(--sans); font-weight:500;
-  transition:all .2s;
+  font-size:13px; cursor:pointer; font-family:var(--sans); font-weight:500; transition:all .2s;
 }
 .add-btn:hover { background:rgba(124,106,247,.25); }
 
-.error-bar {
+.err-bar {
   background:rgba(240,93,110,.08); border:1px solid rgba(240,93,110,.25);
   border-radius:10px; padding:9px 15px; font-size:13px; color:var(--red);
   margin-bottom:14px; display:none;
 }
 
-/* coin rows */
-.coin-list { display:flex; flex-direction:column; gap:9px; }
-.coin-row {
-  background:var(--card); border:1px solid var(--border);
-  border-radius:16px; padding:14px 18px;
-  display:grid; grid-template-columns:44px 1fr auto;
-  align-items:center; gap:13px;
-  transition:border-color .2s, background .2s;
+/* ── COIN CARD ── */
+.coin-list { display:flex; flex-direction:column; gap:10px; }
+
+.coin-card {
+  background:var(--card); border:1px solid var(--border); border-radius:18px;
+  overflow:hidden; transition:border-color .2s;
   animation:fadeUp .3s ease both;
 }
-.coin-row:hover { border-color:var(--border-hover); background:#1a1a25; }
+.coin-card:hover { border-color:var(--bh); }
+.coin-card.active-input { border-color:var(--active-border); background:#15131f; }
 @keyframes fadeUp {
   from { opacity:0; transform:translateY(10px); }
   to   { opacity:1; transform:translateY(0); }
 }
 
+/* top part of card: logo + info + price display */
+.card-top {
+  display:grid; grid-template-columns:52px 1fr auto;
+  align-items:center; gap:14px; padding:16px 18px 12px;
+}
+
 .coin-logo {
-  width:44px; height:44px; border-radius:50%;
+  width:52px; height:52px; border-radius:50%;
   background:var(--surface); border:1px solid var(--border);
-  display:flex; align-items:center; justify-content:center;
-  overflow:hidden; flex-shrink:0; position:relative;
+  display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;
 }
-.coin-logo img { width:32px; height:32px; object-fit:contain; display:block; }
-.coin-logo .fallback {
-  font-family:var(--mono); font-size:10px; font-weight:700;
-  color:var(--accent); display:none; text-align:center;
-}
+.coin-logo img { width:36px; height:36px; object-fit:contain; display:block; }
+.coin-logo .fallback { font-family:var(--mono); font-size:10px; font-weight:700; color:var(--accent); display:none; }
 
-.coin-info { min-width:0; }
+.coin-meta { min-width:0; }
 .coin-name { font-weight:600; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.coin-sym  { font-family:var(--mono); font-size:11px; color:var(--muted); margin-top:2px; }
-
-.coin-right { text-align:right; flex-shrink:0; }
-.coin-usd { font-family:var(--mono); font-size:16px; font-weight:700; }
-.coin-idr { font-family:var(--mono); font-size:11px; color:var(--muted); margin-top:3px; }
-.chg {
-  font-family:var(--mono); font-size:11px; margin-top:4px;
-  padding:2px 7px; border-radius:5px; display:inline-block;
-}
+.coin-sym-row { display:flex; align-items:center; gap:8px; margin-top:3px; }
+.coin-sym { font-family:var(--mono); font-size:11px; color:var(--muted); }
+.chg { font-family:var(--mono); font-size:11px; padding:2px 7px; border-radius:5px; }
 .chg.up   { color:var(--green); background:rgba(34,211,160,.1); }
 .chg.down { color:var(--red);   background:rgba(240,93,110,.1); }
+
+.coin-price-display { text-align:right; }
+.price-usd { font-family:var(--mono); font-size:15px; font-weight:700; }
+.price-idr { font-family:var(--mono); font-size:11px; color:var(--muted); margin-top:3px; }
+
+/* bottom part: input + equivalents */
+.card-bottom {
+  border-top:1px solid var(--border);
+  padding:14px 18px 16px;
+  background:rgba(0,0,0,.15);
+}
+
+.input-row {
+  display:flex; align-items:center; gap:10px; margin-bottom:12px;
+}
+.input-label { font-size:11px; color:var(--muted); font-family:var(--mono); white-space:nowrap; min-width:36px; }
+.coin-amount-input {
+  flex:1; background:var(--surface); border:1px solid var(--border);
+  border-radius:10px; padding:10px 14px;
+  font-family:var(--mono); font-size:16px; font-weight:700; color:var(--text);
+  outline:none; transition:border-color .2s; width:100%;
+}
+.coin-amount-input:focus { border-color:var(--accent); }
+.coin-amount-input::placeholder { color:var(--muted); font-weight:400; }
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
+
+/* equivalents grid */
+.equiv-grid {
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr));
+  gap:8px;
+}
+.equiv-item {
+  background:var(--surface); border:1px solid var(--border); border-radius:10px;
+  padding:9px 12px;
+}
+.equiv-item .e-label { font-size:10px; color:var(--muted); font-family:var(--mono); margin-bottom:4px; }
+.equiv-item .e-val   { font-family:var(--mono); font-size:13px; font-weight:700; word-break:break-all; }
+.equiv-item.usd-eq { border-color:rgba(124,106,247,.25); background:var(--aglow); }
+.equiv-item.usd-eq .e-val { color:var(--accent); }
+.equiv-item.idr-eq { border-color:rgba(34,211,160,.2); background:rgba(34,211,160,.06); }
+.equiv-item.idr-eq .e-val { color:var(--green); }
+
+/* fiat section */
+.fiat-section {
+  background:var(--card); border:1px solid var(--border); border-radius:18px;
+  overflow:hidden; margin-bottom:10px;
+}
+.fiat-top {
+  display:grid; grid-template-columns:52px 1fr; align-items:center; gap:14px;
+  padding:16px 18px 12px;
+}
+.fiat-icon {
+  width:52px; height:52px; border-radius:50%;
+  background:var(--surface); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; flex-shrink:0;
+}
+.fiat-meta { min-width:0; }
+.fiat-name { font-weight:600; font-size:15px; }
+.fiat-sub  { font-family:var(--mono); font-size:11px; color:var(--muted); margin-top:3px; }
+
+.fiat-bottom {
+  border-top:1px solid var(--border); padding:14px 18px 16px;
+  background:rgba(0,0,0,.15);
+  display:grid; grid-template-columns:1fr 1fr; gap:10px;
+}
+.fiat-input-wrap { display:flex; flex-direction:column; gap:6px; }
+.fiat-lbl { font-size:10px; color:var(--muted); font-family:var(--mono); letter-spacing:.08em; }
+.fiat-input {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:10px; padding:10px 14px;
+  font-family:var(--mono); font-size:16px; font-weight:700; color:var(--text);
+  outline:none; transition:border-color .2s; width:100%;
+}
+.fiat-input:focus { border-color:var(--accent); }
+.fiat-input::placeholder { color:var(--muted); font-weight:400; }
 
 .del-btn {
   background:none; border:none; color:var(--muted);
   cursor:pointer; padding:4px; border-radius:6px;
-  opacity:0; transition:opacity .2s, color .2s; display:flex;
+  opacity:0; transition:opacity .2s, color .2s; display:flex; flex-shrink:0;
 }
-.coin-row:hover .del-btn { opacity:1; }
+.coin-card:hover .del-btn,
+.coin-card.active-input .del-btn { opacity:1; }
 .del-btn:hover { color:var(--red); }
 
+/* skel */
 .skel {
   display:inline-block; border-radius:6px;
   background:linear-gradient(90deg,var(--surface) 25%,var(--card) 50%,var(--surface) 75%);
@@ -190,9 +219,8 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 }
 .overlay.open { display:flex; }
 .modal {
-  background:var(--card); border:1px solid var(--border-hover);
-  border-radius:20px; padding:26px;
-  width:min(480px,100%); animation:mIn .2s ease;
+  background:var(--card); border:1px solid var(--bh);
+  border-radius:20px; padding:26px; width:min(480px,100%); animation:mIn .2s ease;
 }
 @keyframes mIn {
   from { opacity:0; transform:scale(.95) translateY(8px); }
@@ -202,15 +230,12 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 .m-search {
   width:100%; background:var(--surface); border:1px solid var(--border);
   border-radius:12px; padding:11px 15px; font-size:14px;
-  color:var(--text); outline:none; font-family:var(--sans);
-  transition:border-color .2s; margin-bottom:12px;
+  color:var(--text); outline:none; font-family:var(--sans); transition:border-color .2s; margin-bottom:12px;
 }
 .m-search:focus { border-color:var(--accent); }
 .m-search::placeholder { color:var(--muted); }
-
 .results {
-  max-height:280px; overflow-y:auto;
-  display:flex; flex-direction:column; gap:5px;
+  max-height:280px; overflow-y:auto; display:flex; flex-direction:column; gap:5px;
   scrollbar-width:thin; scrollbar-color:var(--border) transparent;
 }
 .r-item {
@@ -220,28 +245,26 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 }
 .r-item:hover { background:var(--surface); border-color:var(--border); }
 .r-item.added { opacity:.4; pointer-events:none; }
-.r-thumb {
-  width:30px; height:30px; border-radius:50%;
-  object-fit:contain; flex-shrink:0; background:var(--surface);
-}
+.r-thumb { width:30px; height:30px; border-radius:50%; object-fit:contain; flex-shrink:0; background:var(--surface); }
 .r-name { font-size:13px; font-weight:500; }
 .r-sym  { font-size:11px; color:var(--muted); font-family:var(--mono); }
-
 .m-cancel {
   margin-top:14px; width:100%; background:none;
   border:1px solid var(--border); border-radius:12px; padding:10px;
-  color:var(--muted); cursor:pointer; font-family:var(--sans); font-size:14px;
-  transition:all .2s;
+  color:var(--muted); cursor:pointer; font-family:var(--sans); font-size:14px; transition:all .2s;
 }
-.m-cancel:hover { border-color:var(--border-hover); color:var(--text); }
-
+.m-cancel:hover { border-color:var(--bh); color:var(--text); }
 .empty { text-align:center; padding:36px 20px; color:var(--muted); font-size:14px; }
 
 @media (max-width:520px) {
-  .conv-grid { grid-template-columns:1fr; gap:10px; }
-  .swap-btn { transform:rotate(90deg); margin:0 auto; }
-  header { padding:11px 15px; }
-  main { padding:0 13px; }
+  .card-top { grid-template-columns:44px 1fr auto; gap:10px; padding:14px 14px 10px; }
+  .fiat-top { grid-template-columns:44px 1fr; gap:10px; padding:14px 14px 10px; }
+  .fiat-bottom { grid-template-columns:1fr; }
+  .coin-logo { width:44px; height:44px; }
+  .fiat-icon { width:44px; height:44px; }
+  main { padding:0 12px; }
+  header { padding:11px 14px; }
+  .equiv-grid { grid-template-columns:repeat(auto-fill, minmax(130px, 1fr)); }
 }
 </style>
 </head>
@@ -249,10 +272,10 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 
 <header>
   <div class="logo">KURS<span>/</span>CRYPTO</div>
-  <div class="hdr-right">
-    <span class="upd-label" id="updLabel">—</span>
-    <button class="refresh-btn" id="refreshBtn" onclick="init()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <div class="hdr-r">
+    <span class="upd" id="updLabel">—</span>
+    <button class="rbtn" id="rBtn" onclick="init()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
         <polyline points="23 4 23 10 17 10"/>
         <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
       </svg>
@@ -262,31 +285,58 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 </header>
 
 <main>
-  <div class="conv-wrap">
-    <div class="conv-top">
-      <span class="conv-lbl">Konverter USD ⟷ IDR</span>
-      <span class="rate-badge" id="rateBadge">memuat…</span>
+
+  <!-- rate strip -->
+  <div class="rate-strip">
+    <div class="rate-strip-item">
+      <span class="lbl">USD/IDR</span>
+      <span class="val" id="stripUSDIDR">—</span>
     </div>
-    <div class="conv-grid">
-      <div class="cur-box">
-        <label><span class="flag">🇺🇸</span> USD · Dollar</label>
-        <input type="number" id="usdIn" placeholder="0" value="1" oninput="fromUSD()" />
+    <div class="rate-divider"></div>
+    <div class="rate-strip-item">
+      <span class="lbl">BTC/USD</span>
+      <span class="val" id="stripBTC">—</span>
+    </div>
+    <div class="rate-divider"></div>
+    <div class="rate-strip-item">
+      <span class="lbl">ETH/USD</span>
+      <span class="val" id="stripETH">—</span>
+    </div>
+    <div class="rate-divider"></div>
+    <div class="rate-strip-item">
+      <span class="lbl">Market</span>
+      <span class="val" id="stripTime">realtime</span>
+    </div>
+  </div>
+
+  <!-- fiat converter -->
+  <div class="sec-head" style="margin-top:28px;">
+    <span class="sec-title">Fiat</span>
+  </div>
+
+  <div class="fiat-section">
+    <div class="fiat-top">
+      <div class="fiat-icon">🌐</div>
+      <div class="fiat-meta">
+        <div class="fiat-name">Konverter Fiat</div>
+        <div class="fiat-sub">Ketik di USD atau IDR — semua koin ikut berubah</div>
       </div>
-      <button class="swap-btn" onclick="doSwap()">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/>
-          <polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
-        </svg>
-      </button>
-      <div class="cur-box">
-        <label><span class="flag">🇮🇩</span> IDR · Rupiah</label>
-        <input type="number" id="idrIn" placeholder="0" oninput="fromIDR()" />
+    </div>
+    <div class="fiat-bottom">
+      <div class="fiat-input-wrap">
+        <span class="fiat-lbl">🇺🇸 USD · Dollar</span>
+        <input class="fiat-input" type="number" id="usdIn" placeholder="0" value="" oninput="fromFiat('usd')" />
+      </div>
+      <div class="fiat-input-wrap">
+        <span class="fiat-lbl">🇮🇩 IDR · Rupiah</span>
+        <input class="fiat-input" type="number" id="idrIn" placeholder="0" oninput="fromFiat('idr')" />
       </div>
     </div>
   </div>
 
+  <!-- watchlist -->
   <div class="sec-head">
-    <span class="sec-title">Watchlist Koin</span>
+    <span class="sec-title">Koin</span>
     <button class="add-btn" onclick="openModal()">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
         <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
@@ -295,14 +345,16 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
     </button>
   </div>
 
-  <div class="error-bar" id="errBar">Gagal memuat data — cek koneksi internet kamu.</div>
+  <div class="err-bar" id="errBar">Gagal memuat data — cek koneksi internet kamu.</div>
   <div class="coin-list" id="coinList"></div>
+
 </main>
 
+<!-- ADD COIN MODAL -->
 <div class="overlay" id="overlay" onclick="bgClose(event)">
   <div class="modal">
     <h2>Tambah Koin</h2>
-    <input class="m-search" id="mSearch" placeholder="Cari nama atau simbol koin…" oninput="filterList()" />
+    <input class="m-search" id="mSearch" placeholder="Cari nama atau simbol…" oninput="filterList()" />
     <div class="results" id="mResults">
       <div style="text-align:center;padding:18px;color:var(--muted);font-size:13px">Memuat daftar koin…</div>
     </div>
@@ -311,11 +363,16 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 </div>
 
 <script>
-/* ── state ── */
-const LS = 'kurs_wl_v4';
-let rate = 16200;
-let priceCache = {};
-let cgList = [];
+/* ───────────────────────────────────────────
+   STATE
+─────────────────────────────────────────── */
+const LS = 'kurs_wl_v5';
+let rate    = 16200;        // USD → IDR
+let pcache  = {};           // SYM → { usd, chg }
+let cgList  = [];           // CoinGecko coins list
+let amounts = {};           // SYM / 'usd' / 'idr' → current input value (in own unit)
+let activeField = null;     // which field is "source" of truth
+
 let wl = loadWL();
 
 function loadWL() {
@@ -323,14 +380,16 @@ function loadWL() {
 }
 function dflt() {
   return [
-    { id:'bitcoin',  sym:'BTC', name:'Bitcoin' },
+    { id:'bitcoin',  sym:'BTC', name:'Bitcoin'  },
     { id:'ethereum', sym:'ETH', name:'Ethereum' },
-    { id:'solana',   sym:'SOL', name:'Solana' },
+    { id:'solana',   sym:'SOL', name:'Solana'   },
   ];
 }
 function saveWL() { localStorage.setItem(LS, JSON.stringify(wl)); }
 
-/* ── logo sources (Gate → CoinCap → OKX → fallback text) ── */
+/* ───────────────────────────────────────────
+   LOGOS
+─────────────────────────────────────────── */
 function logoSrcs(sym) {
   const s = sym.toLowerCase();
   return [
@@ -352,44 +411,44 @@ function imgErr(img, sym, retry) {
   }
 }
 
-/* ── fetch rate from Binance (USDT/IDR pair) ── */
+/* ───────────────────────────────────────────
+   FETCH RATE — Binance USDTIDR
+─────────────────────────────────────────── */
 async function fetchRate() {
   const r = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=USDTIDR');
   const d = await r.json();
   if (d.price) {
     rate = parseFloat(d.price);
-    document.getElementById('rateBadge').textContent =
-      '1 USD = Rp ' + Math.round(rate).toLocaleString('id-ID');
-    fromUSD();
+    document.getElementById('stripUSDIDR').textContent =
+      'Rp ' + Math.round(rate).toLocaleString('id-ID');
   }
 }
 
-/* ── fetch prices: Bybit → Binance → CoinGecko ── */
+/* ───────────────────────────────────────────
+   FETCH PRICES — Bybit → Binance → CoinGecko
+─────────────────────────────────────────── */
 async function fetchPrices() {
   const stables = new Set(['USDT','USDC','USD','BUSD','DAI','FDUSD']);
   const syms = wl.map(c => c.sym.toUpperCase());
 
-  syms.filter(s => stables.has(s)).forEach(s => {
-    priceCache[s] = { usd: 1, chg: 0 };
-  });
-
+  syms.filter(s => stables.has(s)).forEach(s => { pcache[s] = { usd:1, chg:0 }; });
   let todo = syms.filter(s => !stables.has(s));
   if (!todo.length) return;
 
-  /* Bybit batch */
+  // 1. Bybit batch
   try {
     const r = await fetch('https://api.bybit.com/v5/market/tickers?category=spot');
     const d = await r.json();
     (d.result?.list || []).forEach(t => {
       const s = t.symbol.replace(/USDT$/, '');
       if (todo.includes(s)) {
-        priceCache[s] = { usd: parseFloat(t.lastPrice), chg: parseFloat(t.price24hPcnt) * 100 };
+        pcache[s] = { usd: parseFloat(t.lastPrice), chg: parseFloat(t.price24hPcnt) * 100 };
         todo = todo.filter(x => x !== s);
       }
     });
   } catch {}
 
-  /* Binance batch */
+  // 2. Binance batch
   if (todo.length) {
     try {
       const r = await fetch('https://api.binance.com/api/v3/ticker/24hr');
@@ -397,90 +456,193 @@ async function fetchPrices() {
       d.forEach(t => {
         const s = t.symbol.replace(/USDT$/, '');
         if (todo.includes(s)) {
-          priceCache[s] = { usd: parseFloat(t.lastPrice), chg: parseFloat(t.priceChangePercent) };
+          pcache[s] = { usd: parseFloat(t.lastPrice), chg: parseFloat(t.priceChangePercent) };
           todo = todo.filter(x => x !== s);
         }
       });
     } catch {}
   }
 
-  /* CoinGecko fallback for remaining */
+  // 3. CoinGecko fallback
   if (todo.length) {
     const cgMap = {};
     wl.forEach(c => { cgMap[c.sym.toUpperCase()] = c.id; });
     const ids = todo.map(s => cgMap[s]).filter(Boolean).join(',');
     if (ids) {
       try {
-        const r = await fetch(
-          `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`
-        );
+        const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
         const d = await r.json();
         todo.forEach(sym => {
           const id = cgMap[sym];
-          if (id && d[id]) {
-            priceCache[sym] = { usd: d[id].usd, chg: d[id].usd_24h_change ?? 0 };
-          }
+          if (id && d[id]) pcache[sym] = { usd: d[id].usd, chg: d[id].usd_24h_change ?? 0 };
         });
       } catch {}
     }
   }
+
+  // update strip
+  if (pcache['BTC']) document.getElementById('stripBTC').textContent = fUSD(pcache['BTC'].usd);
+  if (pcache['ETH']) document.getElementById('stripETH').textContent = fUSD(pcache['ETH'].usd);
 }
 
-/* ── init ── */
+/* ───────────────────────────────────────────
+   INIT
+─────────────────────────────────────────── */
 async function init() {
-  const btn = document.getElementById('refreshBtn');
+  const btn = document.getElementById('rBtn');
   btn.classList.add('spin');
   document.getElementById('errBar').style.display = 'none';
-  renderCoins();
 
   try {
     await Promise.all([fetchRate(), fetchPrices()]);
-    document.getElementById('updLabel').textContent =
-      'Update: ' + new Date().toLocaleTimeString('id-ID');
+    const now = new Date().toLocaleTimeString('id-ID');
+    document.getElementById('updLabel').textContent = 'Update: ' + now;
+    document.getElementById('stripTime').textContent = now;
   } catch {
     document.getElementById('errBar').style.display = 'block';
   }
 
-  renderCoins();
+  // re-propagate current active field after price refresh
+  if (activeField) propagate(activeField, amounts[activeField] || 0);
+  else renderCoins();
+
   btn.classList.remove('spin');
 }
 
-/* ── converter ── */
-function fromUSD() {
-  const v = parseFloat(document.getElementById('usdIn').value);
-  document.getElementById('idrIn').value = isNaN(v) ? '' : Math.round(v * rate);
-}
-function fromIDR() {
-  const v = parseFloat(document.getElementById('idrIn').value);
-  document.getElementById('usdIn').value = isNaN(v) ? '' : (v / rate).toFixed(6);
-}
-function doSwap() {
-  const u = document.getElementById('usdIn').value;
-  const i = document.getElementById('idrIn').value;
-  if (u) { document.getElementById('idrIn').value = Math.round(parseFloat(u)*rate); document.getElementById('usdIn').value = ''; }
-  else if (i) { document.getElementById('usdIn').value = (parseFloat(i)/rate).toFixed(6); document.getElementById('idrIn').value = ''; }
+/* ───────────────────────────────────────────
+   CONVERTER LOGIC — single source of truth
+─────────────────────────────────────────── */
+
+// Convert any amount of `fromSym` into USD
+function toUSD(fromSym, amount) {
+  if (fromSym === 'usd') return amount;
+  if (fromSym === 'idr') return amount / rate;
+  const p = pcache[fromSym.toUpperCase()];
+  return p ? amount * p.usd : null;
 }
 
-/* ── format ── */
+// Convert USD into target symbol amount
+function fromUSD_to(usdVal, toSym) {
+  if (toSym === 'usd') return usdVal;
+  if (toSym === 'idr') return usdVal * rate;
+  const p = pcache[toSym.toUpperCase()];
+  return p && p.usd ? usdVal / p.usd : null;
+}
+
+// Called whenever any field changes
+function propagate(sourceSym, sourceAmount) {
+  activeField = sourceSym;
+  amounts[sourceSym] = sourceAmount;
+
+  const usdVal = toUSD(sourceSym, parseFloat(sourceAmount) || 0);
+  if (usdVal == null) return;
+
+  // update fiat
+  const usdEl = document.getElementById('usdIn');
+  const idrEl = document.getElementById('idrIn');
+  if (sourceSym !== 'usd') usdEl.value = usdVal > 0 ? niceFmt(usdVal, 'usd') : '';
+  if (sourceSym !== 'idr') idrEl.value = usdVal > 0 ? Math.round(usdVal * rate) : '';
+
+  // update each coin input + equivalents
+  wl.forEach(coin => {
+    const sym = coin.sym.toUpperCase();
+    const el = document.getElementById('input_' + sym);
+    if (!el) return;
+    if (sym !== sourceSym.toUpperCase()) {
+      const qty = fromUSD_to(usdVal, sym);
+      el.value = qty != null && usdVal > 0 ? niceFmt(qty, sym) : '';
+    }
+    // update equivalents display
+    updateEquivDisplay(sym, usdVal);
+    // highlight active card
+    const card = document.getElementById('card_' + sym);
+    if (card) card.classList.toggle('active-input', sym === sourceSym.toUpperCase());
+  });
+
+  // highlight fiat section
+  document.querySelectorAll('.fiat-input').forEach(inp => {
+    inp.style.borderColor = (sourceSym === 'usd' || sourceSym === 'idr') ? 'var(--accent)' : '';
+  });
+}
+
+function fromFiat(which) {
+  const usdEl = document.getElementById('usdIn');
+  const idrEl = document.getElementById('idrIn');
+  if (which === 'usd') {
+    const v = parseFloat(usdEl.value) || 0;
+    propagate('usd', v);
+  } else {
+    const v = parseFloat(idrEl.value) || 0;
+    propagate('idr', v);
+  }
+}
+
+function onCoinInput(sym) {
+  const el = document.getElementById('input_' + sym);
+  const v  = parseFloat(el.value) || 0;
+  propagate(sym, v);
+}
+
+function updateEquivDisplay(sym, usdVal) {
+  const equivUSDEl = document.getElementById('eq_usd_' + sym);
+  const equivIDREl = document.getElementById('eq_idr_' + sym);
+  if (equivUSDEl) equivUSDEl.textContent = usdVal > 0 ? fUSD(usdVal) : '—';
+  if (equivIDREl) equivIDREl.textContent = usdVal > 0 ? fIDR(usdVal) : '—';
+
+  // other coins equivalents
+  wl.forEach(other => {
+    const osym = other.sym.toUpperCase();
+    if (osym === sym) return;
+    const el = document.getElementById(`eq_${osym}_in_${sym}`);
+    if (el) {
+      const qty = fromUSD_to(usdVal, osym);
+      el.textContent = qty != null && usdVal > 0 ? niceFmt(qty, osym) + ' ' + osym : '—';
+    }
+  });
+}
+
+/* ───────────────────────────────────────────
+   FORMAT
+─────────────────────────────────────────── */
 function fUSD(n) {
-  if (n == null) return '—';
-  if (n >= 1000) return '$' + n.toLocaleString('en-US', {maximumFractionDigits:2});
-  if (n >= 1)    return '$' + n.toFixed(4);
-  if (n >= .01)  return '$' + n.toFixed(6);
+  if (n == null || isNaN(n)) return '—';
+  if (n >= 1000)  return '$' + n.toLocaleString('en-US', {maximumFractionDigits:2});
+  if (n >= 1)     return '$' + n.toFixed(4);
+  if (n >= .0001) return '$' + n.toFixed(6);
   return '$' + n.toFixed(8);
 }
 function fIDR(n) {
-  if (n == null) return '';
+  if (n == null || isNaN(n)) return '—';
   const v = n * rate;
   if (v >= 1e12) return 'Rp ' + (v/1e12).toFixed(2) + ' T';
   if (v >= 1e9)  return 'Rp ' + (v/1e9).toFixed(2) + ' M';
   if (v >= 1e6)  return 'Rp ' + (v/1e6).toFixed(2) + ' jt';
   return 'Rp ' + Math.round(v).toLocaleString('id-ID');
 }
+function fIDRraw(n) { // raw IDR value (not USD*rate)
+  if (n == null || isNaN(n)) return '—';
+  if (n >= 1e12) return 'Rp ' + (n/1e12).toFixed(2) + ' T';
+  if (n >= 1e9)  return 'Rp ' + (n/1e9).toFixed(2) + ' M';
+  if (n >= 1e6)  return 'Rp ' + (n/1e6).toFixed(2) + ' jt';
+  return 'Rp ' + Math.round(n).toLocaleString('id-ID');
+}
+function niceFmt(n, sym) {
+  if (n == null || isNaN(n)) return '';
+  if (sym === 'usd') return n >= 1 ? n.toFixed(2) : n.toFixed(6);
+  if (sym === 'idr') return Math.round(n).toString();
+  // for crypto: show more decimals for small values
+  if (n >= 1000)  return n.toLocaleString('en-US', {maximumFractionDigits:4});
+  if (n >= 1)     return n.toFixed(6);
+  if (n >= .0001) return n.toFixed(8);
+  return n.toExponential(4);
+}
 
-/* ── render ── */
+/* ───────────────────────────────────────────
+   RENDER
+─────────────────────────────────────────── */
 function renderCoins() {
   const el = document.getElementById('coinList');
+
   if (!wl.length) {
     el.innerHTML = `<div class="empty">
       <div style="font-size:30px;margin-bottom:10px">📭</div>
@@ -491,50 +653,102 @@ function renderCoins() {
   }
 
   el.innerHTML = wl.map((coin, i) => {
-    const p   = priceCache[coin.sym.toUpperCase()];
-    const usd = p?.usd;
-    const chg = p?.chg;
-    const up  = chg >= 0;
-    const s0  = logoSrcs(coin.sym)[0];
+    const sym  = coin.sym.toUpperCase();
+    const p    = pcache[sym];
+    const usdP = p?.usd;
+    const chg  = p?.chg;
+    const up   = chg >= 0;
+    const src0 = logoSrcs(sym)[0];
 
-    return `<div class="coin-row" style="animation-delay:${i*.04}s">
-      <div class="coin-logo">
-        <img src="${s0}" data-retry="1" alt="${coin.sym}"
-          onerror="imgErr(this,'${coin.sym}',this.dataset.retry)" />
-        <span class="fallback">${coin.sym.slice(0,4)}</span>
-      </div>
-      <div class="coin-info">
-        <div class="coin-name">${coin.name}</div>
-        <div class="coin-sym">${coin.sym.toUpperCase()}</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <div class="coin-right">
-          ${usd != null
-            ? `<div class="coin-usd">${fUSD(usd)}</div>
-               <div class="coin-idr">${fIDR(usd)}</div>
-               ${chg != null ? `<div class="chg ${up?'up':'down'}">${up?'+':''}${chg.toFixed(2)}%</div>` : ''}`
-            : `<div class="coin-usd"><span class="skel" style="width:80px;height:15px"></span></div>
-               <div class="coin-idr"><span class="skel" style="width:60px;height:11px;margin-top:5px"></span></div>`
-          }
+    // build equiv items for other coins
+    const otherEquivs = wl
+      .filter(o => o.sym.toUpperCase() !== sym)
+      .map(o => {
+        const osym = o.sym.toUpperCase();
+        return `<div class="equiv-item">
+          <div class="e-label">${osym}</div>
+          <div class="e-val" id="eq_${osym}_in_${sym}">—</div>
+        </div>`;
+      }).join('');
+
+    return `<div class="coin-card" id="card_${sym}" style="animation-delay:${i*.05}s">
+      <div class="card-top">
+        <div class="coin-logo">
+          <img src="${src0}" data-retry="1" alt="${sym}"
+            onerror="imgErr(this,'${sym}',this.dataset.retry)" />
+          <span class="fallback">${sym.slice(0,4)}</span>
         </div>
-        <button class="del-btn" onclick="removeCoin('${coin.id}')" title="Hapus">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <polyline points="3 6 5 6 21 6"/>
-            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-            <path d="M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-          </svg>
-        </button>
+        <div class="coin-meta">
+          <div class="coin-name">${coin.name}</div>
+          <div class="coin-sym-row">
+            <span class="coin-sym">${sym}</span>
+            ${chg != null
+              ? `<span class="chg ${up?'up':'down'}">${up?'+':''}${chg.toFixed(2)}%</span>`
+              : ''}
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div class="coin-price-display">
+            ${usdP != null
+              ? `<div class="price-usd">${fUSD(usdP)}</div>
+                 <div class="price-idr">${fIDR(usdP)}</div>`
+              : `<div class="price-usd"><span class="skel" style="width:80px;height:14px"></span></div>
+                 <div class="price-idr"><span class="skel" style="width:60px;height:11px;margin-top:5px"></span></div>`
+            }
+          </div>
+          <button class="del-btn" onclick="removeCoin('${coin.id}')" title="Hapus">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+              <path d="M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="card-bottom">
+        <div class="input-row">
+          <span class="input-label">${sym}</span>
+          <input
+            class="coin-amount-input"
+            type="number"
+            id="input_${sym}"
+            placeholder="Masukkan jumlah ${sym}…"
+            oninput="onCoinInput('${sym}')"
+          />
+        </div>
+        <div class="equiv-grid">
+          <div class="equiv-item usd-eq">
+            <div class="e-label">≈ USD</div>
+            <div class="e-val" id="eq_usd_${sym}">—</div>
+          </div>
+          <div class="equiv-item idr-eq">
+            <div class="e-label">≈ IDR</div>
+            <div class="e-val" id="eq_idr_${sym}">—</div>
+          </div>
+          ${otherEquivs}
+        </div>
       </div>
     </div>`;
   }).join('');
+
+  // re-propagate if there's an active conversion
+  if (activeField && amounts[activeField]) {
+    propagate(activeField, amounts[activeField]);
+  }
 }
 
 function removeCoin(id) {
+  const sym = wl.find(c => c.id === id)?.sym?.toUpperCase();
   wl = wl.filter(c => c.id !== id);
+  if (activeField === sym) { activeField = null; amounts = {}; }
+  delete amounts[sym];
   saveWL(); renderCoins();
 }
 
-/* ── modal ── */
+/* ───────────────────────────────────────────
+   MODAL
+─────────────────────────────────────────── */
 function openModal() {
   document.getElementById('overlay').classList.add('open');
   const inp = document.getElementById('mSearch');
@@ -556,7 +770,7 @@ async function loadCGList() {
 }
 
 function filterList() {
-  const q = document.getElementById('mSearch').value.trim().toLowerCase();
+  const q   = document.getElementById('mSearch').value.trim().toLowerCase();
   const box = document.getElementById('mResults');
   const addedIds = new Set(wl.map(c => c.id));
 
@@ -575,14 +789,16 @@ function filterList() {
   box.innerHTML = hits.map(c => {
     const isAdded = addedIds.has(c.id);
     const src0 = logoSrcs(c.symbol)[0];
-    const esc = (s) => s.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-    return `<div class="r-item ${isAdded ? 'added' : ''}"
-        onclick="${isAdded ? '' : `pickCoin('${esc(c.id)}','${esc(c.name)}','${esc(c.symbol)}')`}">
+    const safeId   = c.id.replace(/'/g,"\\'");
+    const safeName = c.name.replace(/'/g,"\\'");
+    const safeSym  = c.symbol.replace(/'/g,"\\'");
+    return `<div class="r-item ${isAdded?'added':''}"
+        onclick="${isAdded?'':` pickCoin('${safeId}','${safeName}','${safeSym}')`}">
       <img class="r-thumb" src="${src0}" data-retry="1" alt="${c.symbol}"
-        onerror="imgErr(this,'${c.symbol.toUpperCase()}',this.dataset.retry)" />
+        onerror="imgErr(this,'${c.symbol.toUpperCase()}',this.dataset.retry)">
       <div>
         <div class="r-name">${c.name}</div>
-        <div class="r-sym">${c.symbol.toUpperCase()}${isAdded ? ' · sudah ada' : ''}</div>
+        <div class="r-sym">${c.symbol.toUpperCase()}${isAdded?' · sudah ada':''}</div>
       </div>
     </div>`;
   }).join('');
@@ -594,48 +810,48 @@ async function pickCoin(id, name, sym) {
   wl.push({ id, name, sym: symU });
   saveWL(); renderCoins();
 
-  /* fetch price immediately for new coin */
+  // fetch price for new coin
   const stables = new Set(['USDT','USDC','USD','BUSD','DAI','FDUSD']);
-  if (stables.has(symU)) { priceCache[symU] = { usd: 1, chg: 0 }; renderCoins(); return; }
+  if (stables.has(symU)) { pcache[symU] = { usd:1, chg:0 }; renderCoins(); return; }
 
   let done = false;
 
-  /* Bybit */
   try {
     const r = await fetch(`https://api.bybit.com/v5/market/tickers?category=spot&symbol=${symU}USDT`);
     const d = await r.json();
     const t = d.result?.list?.[0];
     if (t && parseFloat(t.lastPrice) > 0) {
-      priceCache[symU] = { usd: parseFloat(t.lastPrice), chg: parseFloat(t.price24hPcnt)*100 };
+      pcache[symU] = { usd: parseFloat(t.lastPrice), chg: parseFloat(t.price24hPcnt)*100 };
       done = true;
     }
   } catch {}
 
-  /* Binance */
   if (!done) {
     try {
       const r = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symU}USDT`);
       const d = await r.json();
       if (d.lastPrice && parseFloat(d.lastPrice) > 0) {
-        priceCache[symU] = { usd: parseFloat(d.lastPrice), chg: parseFloat(d.priceChangePercent) };
+        pcache[symU] = { usd: parseFloat(d.lastPrice), chg: parseFloat(d.priceChangePercent) };
         done = true;
       }
     } catch {}
   }
 
-  /* CoinGecko */
   if (!done) {
     try {
       const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd&include_24hr_change=true`);
       const d = await r.json();
-      if (d[id]) priceCache[symU] = { usd: d[id].usd, chg: d[id].usd_24h_change ?? 0 };
+      if (d[id]) pcache[symU] = { usd: d[id].usd, chg: d[id].usd_24h_change ?? 0 };
     } catch {}
   }
 
   renderCoins();
+  if (activeField && amounts[activeField]) propagate(activeField, amounts[activeField]);
 }
 
-/* ── boot ── */
+/* ───────────────────────────────────────────
+   BOOT
+─────────────────────────────────────────── */
 init();
 setInterval(init, 60000);
 </script>
