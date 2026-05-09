@@ -3,152 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KURS REALTIME PRO</title>
+    <title>Kalkulator Kurs Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;700&display=swap');
-        body { background-color: #050505; color: #fff; font-family: 'Space Grotesk', sans-serif; }
-        .glass-card { background: rgba(15, 15, 15, 0.9); border: 1px solid #222; border-radius: 24px; }
-        .input-glow:focus { border-color: #f0b90b; box-shadow: 0 0 20px rgba(240, 185, 11, 0.1); }
-        .coin-box { background: #111; border: 1px solid #222; border-radius: 16px; padding: 15px; }
+        body { background-color: #000; color: #fff; font-family: sans-serif; overflow: hidden; }
+        .display-row { background: #1c1c1e; border-radius: 12px; margin-bottom: 8px; display: flex; align-items: center; padding: 12px; }
+        .flag-icon { width: 30px; height: 30px; border-radius: 50%; overflow: hidden; margin-right: 12px; flex-shrink: 0; }
+        .flag-icon img { width: 100%; height: 100%; object-fit: cover; }
+        .currency-label { font-size: 12px; font-weight: bold; width: 40px; color: #8e8e93; }
+        .amount-display { flex-grow: 1; text-align: right; font-size: 20px; font-weight: 500; overflow: hidden; }
+        
+        .btn { border-radius: 50%; height: 75px; width: 75px; display: flex; items-center; justify-content: center; font-size: 24px; font-weight: 500; cursor: pointer; transition: opacity 0.2s; }
+        .btn:active { opacity: 0.5; }
+        .btn-gray { background: #a5a5a5; color: #000; }
+        .btn-dark-gray { background: #333; color: #fff; }
+        .btn-orange { background: #ff9f0a; color: #fff; }
+        .btn-zero { border-radius: 40px; width: 160px; justify-content: flex-start; padding-left: 30px; }
+        
+        .active-row { border: 1px solid #7c6c44; background: #262116; }
     </style>
 </head>
-<body class="min-h-screen p-4 flex flex-col items-center justify-center">
+<body class="flex flex-col h-screen max-w-md mx-auto p-4">
 
-    <div class="w-full max-w-4xl">
-        <!-- HEADER -->
-        <div class="flex justify-between items-end mb-8 px-2">
-            <div>
-                <h1 class="text-4xl font-black text-white italic tracking-tighter">KURS<span class="text-yellow-500">REALTIME</span></h1>
-                <p class="text-[10px] text-gray-500 uppercase tracking-[0.4em]">USDT/IDR Fair Price Data</p>
-            </div>
-            <div id="status" class="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
-                LIVE SYNC
-            </div>
+    <!-- Screen Kurs -->
+    <div class="flex-grow flex flex-col justify-end pb-4">
+        <div class="display-row" id="row-USD">
+            <div class="flag-icon"><img src="https://flagcdn.com/w80/us.png"></div>
+            <div class="currency-label">USD</div>
+            <div class="amount-display" id="val-USD">0</div>
         </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- KONVERTER -->
-            <div class="lg:col-span-1">
-                <div class="glass-card p-6 h-full border-t-4 border-t-yellow-500 shadow-2xl">
-                    <h2 class="text-xs font-bold text-gray-400 mb-6 uppercase tracking-widest">Converter</h2>
-                    
-                    <div class="mb-8">
-                        <label class="text-[10px] text-gray-500 block mb-2 font-bold">AMOUNT USD</label>
-                        <input type="number" id="usdInput" value="1" 
-                            class="w-full bg-black border-2 border-zinc-800 rounded-xl p-4 text-3xl font-bold text-white input-glow outline-none transition-all">
-                    </div>
-
-                    <div class="bg-gradient-to-br from-zinc-900 to-black rounded-2xl p-6 border border-zinc-800">
-                        <p class="text-[10px] text-yellow-500 font-bold mb-1 uppercase">Fair IDR Result</p>
-                        <div id="idrOutput" class="text-3xl font-black text-white truncate text-green-400">Rp 0</div>
-                        <div id="rateInfo" class="text-[10px] text-gray-500 mt-3 font-mono italic">Rate: Loading...</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- MULTI COIN MONITOR -->
-            <div class="lg:col-span-2">
-                <div class="glass-card p-6 h-full border-t-4 border-t-blue-500 shadow-2xl">
-                    <h2 class="text-xs font-bold text-gray-400 mb-6 uppercase tracking-widest">Market Monitoring (USD)</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="coinGrid">
-                        <!-- Bitcoin -->
-                        <div class="coin-box flex justify-between items-center">
-                            <div>
-                                <p class="text-[10px] text-gray-500 font-bold uppercase">Bitcoin</p>
-                                <p id="price-BTC" class="text-xl font-bold font-mono">$--</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-[10px] text-gray-500 font-bold uppercase">24H Change</p>
-                                <p id="change-BTC" class="text-xs font-bold">--%</p>
-                            </div>
-                        </div>
-                        <!-- Ethereum -->
-                        <div class="coin-box flex justify-between items-center">
-                            <div>
-                                <p class="text-[10px] text-gray-500 font-bold uppercase">Ethereum</p>
-                                <p id="price-ETH" class="text-xl font-bold font-mono">$--</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-[10px] text-gray-500 font-bold uppercase">24H Change</p>
-                                <p id="change-ETH" class="text-xs font-bold">--%</p>
-                            </div>
-                        </div>
-                        <!-- Solana -->
-                        <div class="coin-box flex justify-between items-center">
-                            <div>
-                                <p class="text-[10px] text-gray-500 font-bold uppercase">Solana</p>
-                                <p id="price-SOL" class="text-xl font-bold font-mono">$--</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-[10px] text-gray-500 font-bold uppercase">24H Change</p>
-                                <p id="change-SOL" class="text-xs font-bold">--%</p>
-                            </div>
-                        </div>
-                        <!-- BNB -->
-                        <div class="coin-box flex justify-between items-center">
-                            <div>
-                                <p class="text-[10px] text-gray-500 font-bold uppercase">Binance Coin</p>
-                                <p id="price-BNB" class="text-xl font-bold font-mono">$--</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-[10px] text-gray-500 font-bold uppercase">24H Change</p>
-                                <p id="change-BNB" class="text-xs font-bold">--%</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="display-row" id="row-IDR">
+            <div class="flag-icon"><img src="https://flagcdn.com/w80/id.png"></div>
+            <div class="currency-label">IDR</div>
+            <div class="amount-display" id="val-IDR">0</div>
+        </div>
+        <div class="display-row" id="row-BTC">
+            <div class="flag-icon"><img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png"></div>
+            <div class="currency-label">BTC</div>
+            <div class="amount-display" id="val-BTC">0</div>
+        </div>
+        <div class="display-row" id="row-ETH">
+            <div class="flag-icon"><img src="https://cryptologos.cc/logos/ethereum-eth-logo.png"></div>
+            <div class="currency-label">ETH</div>
+            <div class="amount-display" id="val-ETH">0</div>
+        </div>
+        <div class="display-row active-row" id="row-SGD">
+            <div class="flag-icon"><img src="https://flagcdn.com/w80/sg.png"></div>
+            <div class="currency-label">SGD</div>
+            <div class="amount-display text-yellow-500" id="val-SGD">0</div>
         </div>
     </div>
 
+    <!-- Pad Kalkulator -->
+    <div class="grid grid-cols-4 gap-3 mb-6">
+        <div class="btn btn-gray" onclick="press('C')">C</div>
+        <div class="btn btn-gray" onclick="press('back')"><i class="fas fa-arrow-left"></i></div>
+        <div class="btn btn-gray" onclick="press('%')">%</div>
+        <div class="btn btn-orange" onclick="press('/')">÷</div>
+
+        <div class="btn btn-dark-gray" onclick="press('7')">7</div>
+        <div class="btn btn-dark-gray" onclick="press('8')">8</div>
+        <div class="btn btn-dark-gray" onclick="press('9')">9</div>
+        <div class="btn btn-orange" onclick="press('*')">×</div>
+
+        <div class="btn btn-dark-gray" onclick="press('4')">4</div>
+        <div class="btn btn-dark-gray" onclick="press('5')">5</div>
+        <div class="btn btn-dark-gray" onclick="press('6')">6</div>
+        <div class="btn btn-orange" onclick="press('-')">−</div>
+
+        <div class="btn btn-dark-gray" onclick="press('1')">1</div>
+        <div class="btn btn-dark-gray" onclick="press('2')">2</div>
+        <div class="btn btn-dark-gray" onclick="press('3')">3</div>
+        <div class="btn btn-orange" onclick="press('+')">+</div>
+
+        <div class="btn btn-dark-gray btn-zero col-span-2" onclick="press('0')">0</div>
+        <div class="btn btn-dark-gray" onclick="press('.')">,</div>
+        <div class="btn btn-orange" onclick="press('=')">=</div>
+    </div>
+
     <script>
-        async function updateData() {
+        let currentInput = "0";
+        let rates = { IDR: 16300, BTC: 0.000015, ETH: 0.0003, SGD: 1.35 }; // Default awal
+
+        async function fetchRates() {
             try {
-                // 1. Ambil Fair Kurs USDT/IDR (Ganti BIDR yang udah mati)
-                // Pake API Indodax karena datanya paling "nyata" buat Rupiah
-                const resIndo = await fetch('https://indodax.com/api/ticker/usdtidr');
-                const dataIndo = await resIndo.json();
-                const rateIdr = parseFloat(dataIndo.ticker.last);
+                // Ambil Kurs dari Bybit (Sesuai file Porto elu)
+                const resIdr = await fetch('https://api.bybit.com/v5/market/tickers?category=spot&symbol=USDTIDR');
+                const dIdr = await resIdr.json();
+                rates.IDR = parseFloat(dIdr.result.list[0].lastPrice);
 
-                // Update Kalkulator
-                const usdVal = document.getElementById('usdInput').value;
-                const totalIdr = usdVal * rateIdr;
+                const resBtc = await fetch('https://api.bybit.com/v5/market/tickers?category=spot&symbol=BTCUSDT');
+                const dBtc = await resBtc.json();
+                rates.BTC = 1 / parseFloat(dBtc.result.list[0].lastPrice);
+
+                const resEth = await fetch('https://api.bybit.com/v5/market/tickers?category=spot&symbol=ETHUSDT');
+                const dEth = await resEth.json();
+                rates.ETH = 1 / parseFloat(dEth.result.list[0].lastPrice);
+
+                // SGD estimasi via IDR (Bybit ga ada SGD spot yang direct biasanya)
+                rates.SGD = 1.35; 
                 
-                document.getElementById('idrOutput').innerText = new Intl.NumberFormat('id-IDR', {
-                    style: 'currency', currency: 'IDR', maximumFractionDigits: 0
-                }).format(totalIdr);
-                
-                document.getElementById('rateInfo').innerText = `Fair Rate: Rp ${rateIdr.toLocaleString('id-IDR')}`;
-
-                // 2. Ambil Harga Koin Global dari Binance
-                const pairs = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT'];
-                for (let pair of pairs) {
-                    const resB = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${pair}`);
-                    const dataB = await resB.json();
-                    
-                    const symbol = pair.replace('USDT', '');
-                    const priceEl = document.getElementById(`price-${symbol}`);
-                    const changeEl = document.getElementById(`change-${symbol}`);
-                    
-                    priceEl.innerText = '$ ' + parseFloat(dataB.lastPrice).toLocaleString();
-                    const change = parseFloat(dataB.priceChangePercent).toFixed(2);
-                    changeEl.innerText = `${change > 0 ? '+' : ''}${change}%`;
-                    changeEl.className = `text-xs font-bold ${change >= 0 ? 'text-green-400' : 'text-red-500'}`;
-                }
-
-                document.getElementById('status').innerText = "LIVE SYNC: " + new Date().toLocaleTimeString();
-
-            } catch (err) {
-                console.error("Error Bro:", err);
-                document.getElementById('status').innerText = "CONNECTION ERROR";
-            }
+                updateDisplay();
+            } catch (e) { console.log("Rate update failed"); }
         }
 
-        // Jalankan
-        document.getElementById('usdInput').addEventListener('input', updateData);
-        updateData();
-        setInterval(updateData, 5000); // Update tiap 5 detik biar enteng
+        function press(key) {
+            if (key === 'C') {
+                currentInput = "0";
+            } else if (key === 'back') {
+                currentInput = currentInput.length > 1 ? currentInput.slice(0, -1) : "0";
+            } else if (!isNaN(key) || key === '.') {
+                if (currentInput === "0" && key !== '.') currentInput = key;
+                else currentInput += key;
+            }
+            // Logic math sederhana bisa ditambahin di sini kalo mau full kalkulator
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            const usd = parseFloat(currentInput) || 0;
+            document.getElementById('val-USD').innerText = usd.toLocaleString();
+            document.getElementById('val-IDR').innerText = (usd * rates.IDR).toLocaleString('id-IDR');
+            document.getElementById('val-BTC').innerText = (usd * rates.BTC).toFixed(8);
+            document.getElementById('val-ETH').innerText = (usd * rates.ETH).toFixed(6);
+            document.getElementById('val-SGD').innerText = (usd * rates.SGD).toLocaleString();
+        }
+
+        fetchRates();
+        setInterval(fetchRates, 10000);
     </script>
 </body>
 </html>
