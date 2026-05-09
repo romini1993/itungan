@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KURS REALTIME PRO - FIX 2026</title>
+    <title>KURS REALTIME PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;700&display=swap');
         body { background-color: #050505; color: #fff; font-family: 'Space Grotesk', sans-serif; }
         .glass-card { background: rgba(15, 15, 15, 0.9); border: 1px solid #222; border-radius: 24px; }
         .input-glow:focus { border-color: #f0b90b; box-shadow: 0 0 20px rgba(240, 185, 11, 0.1); }
-        .coin-box { background: #111; border: 1px solid #222; border-radius: 16px; padding: 15px; transition: 0.3s; }
-        .coin-box:hover { border-color: #3b82f6; }
+        .coin-box { background: #111; border: 1px solid #222; border-radius: 16px; padding: 15px; }
     </style>
 </head>
 <body class="min-h-screen p-4 flex flex-col items-center justify-center">
@@ -20,19 +19,19 @@
         <!-- HEADER -->
         <div class="flex justify-between items-end mb-8 px-2">
             <div>
-                <h1 class="text-4xl font-black text-white italic tracking-tighter">KURS<span class="text-yellow-500">PRO</span></h1>
-                <p class="text-[10px] text-gray-500 uppercase tracking-[0.4em]">Fair Price USDT/IDR Dashboard</p>
+                <h1 class="text-4xl font-black text-white italic tracking-tighter">KURS<span class="text-yellow-500">REALTIME</span></h1>
+                <p class="text-[10px] text-gray-500 uppercase tracking-[0.4em]">USDT/IDR Fair Price Data</p>
             </div>
-            <div id="status" class="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 animate-pulse">
+            <div id="status" class="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
                 LIVE SYNC
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- KONVERTER UTAMA -->
+            <!-- KONVERTER -->
             <div class="lg:col-span-1">
                 <div class="glass-card p-6 h-full border-t-4 border-t-yellow-500 shadow-2xl">
-                    <h2 class="text-xs font-bold text-gray-400 mb-6 uppercase tracking-widest">Calculator</h2>
+                    <h2 class="text-xs font-bold text-gray-400 mb-6 uppercase tracking-widest">Converter</h2>
                     
                     <div class="mb-8">
                         <label class="text-[10px] text-gray-500 block mb-2 font-bold">AMOUNT USD</label>
@@ -42,91 +41,91 @@
 
                     <div class="bg-gradient-to-br from-zinc-900 to-black rounded-2xl p-6 border border-zinc-800">
                         <p class="text-[10px] text-yellow-500 font-bold mb-1 uppercase">Fair IDR Result</p>
-                        <div id="idrOutput" class="text-3xl font-black text-white truncate">Rp 0</div>
-                        <div id="rateInfo" class="text-[10px] text-gray-500 mt-3 font-mono italic">Rate: Fetching...</div>
+                        <div id="idrOutput" class="text-3xl font-black text-white truncate text-green-400">Rp 0</div>
+                        <div id="rateInfo" class="text-[10px] text-gray-500 mt-3 font-mono italic">Rate: Loading...</div>
                     </div>
                 </div>
             </div>
 
-            <!-- MULTI COIN LIST -->
+            <!-- MULTI COIN MONITOR -->
             <div class="lg:col-span-2">
                 <div class="glass-card p-6 h-full border-t-4 border-t-blue-500 shadow-2xl">
-                    <h2 class="text-xs font-bold text-gray-400 mb-6 uppercase tracking-widest">Market Monitoring</h2>
+                    <h2 class="text-xs font-bold text-gray-400 mb-6 uppercase tracking-widest">Market Monitoring (USD)</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="coinGrid">
                         <!-- Bitcoin -->
                         <div class="coin-box flex justify-between items-center">
                             <div>
-                                <p class="text-[10px] text-gray-500 font-bold">BITCOIN</p>
-                                <p id="price-BTC" class="text-xl font-bold">$--</p>
+                                <p class="text-[10px] text-gray-500 font-bold uppercase">Bitcoin</p>
+                                <p id="price-BTC" class="text-xl font-bold font-mono">$--</p>
                             </div>
                             <div class="text-right">
-                                <p class="text-[10px] text-gray-500 font-bold">24H CHANGE</p>
+                                <p class="text-[10px] text-gray-500 font-bold uppercase">24H Change</p>
                                 <p id="change-BTC" class="text-xs font-bold">--%</p>
                             </div>
                         </div>
                         <!-- Ethereum -->
                         <div class="coin-box flex justify-between items-center">
                             <div>
-                                <p class="text-[10px] text-gray-500 font-bold">ETHEREUM</p>
-                                <p id="price-ETH" class="text-xl font-bold">$--</p>
+                                <p class="text-[10px] text-gray-500 font-bold uppercase">Ethereum</p>
+                                <p id="price-ETH" class="text-xl font-bold font-mono">$--</p>
                             </div>
                             <div class="text-right">
-                                <p class="text-[10px] text-gray-500 font-bold">24H CHANGE</p>
+                                <p class="text-[10px] text-gray-500 font-bold uppercase">24H Change</p>
                                 <p id="change-ETH" class="text-xs font-bold">--%</p>
                             </div>
                         </div>
                         <!-- Solana -->
                         <div class="coin-box flex justify-between items-center">
                             <div>
-                                <p class="text-[10px] text-gray-500 font-bold">SOLANA</p>
-                                <p id="price-SOL" class="text-xl font-bold">$--</p>
+                                <p class="text-[10px] text-gray-500 font-bold uppercase">Solana</p>
+                                <p id="price-SOL" class="text-xl font-bold font-mono">$--</p>
                             </div>
                             <div class="text-right">
-                                <p class="text-[10px] text-gray-500 font-bold">24H CHANGE</p>
+                                <p class="text-[10px] text-gray-500 font-bold uppercase">24H Change</p>
                                 <p id="change-SOL" class="text-xs font-bold">--%</p>
                             </div>
                         </div>
                         <!-- BNB -->
                         <div class="coin-box flex justify-between items-center">
                             <div>
-                                <p class="text-[10px] text-gray-500 font-bold">BINANCE COIN</p>
-                                <p id="price-BNB" class="text-xl font-bold">$--</p>
+                                <p class="text-[10px] text-gray-500 font-bold uppercase">Binance Coin</p>
+                                <p id="price-BNB" class="text-xl font-bold font-mono">$--</p>
                             </div>
                             <div class="text-right">
-                                <p class="text-[10px] text-gray-500 font-bold">24H CHANGE</p>
+                                <p class="text-[10px] text-gray-500 font-bold uppercase">24H Change</p>
                                 <p id="change-BNB" class="text-xs font-bold">--%</p>
                             </div>
                         </div>
                     </div>
-                    <p class="text-[9px] text-gray-600 mt-6 text-center italic">Data sourced from Indodax & Binance Realtime API</p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        async function updateMarket() {
+        async function updateData() {
             try {
-                // 1. Ambil Fair Price USDT/IDR dari Indodax (Realtime Rupiah)
+                // 1. Ambil Fair Kurs USDT/IDR (Ganti BIDR yang udah mati)
+                // Pake API Indodax karena datanya paling "nyata" buat Rupiah
                 const resIndo = await fetch('https://indodax.com/api/ticker/usdtidr');
                 const dataIndo = await resIndo.json();
-                const usdtIdr = parseFloat(dataIndo.ticker.last);
+                const rateIdr = parseFloat(dataIndo.ticker.last);
 
                 // Update Kalkulator
                 const usdVal = document.getElementById('usdInput').value;
-                const totalIdr = usdVal * usdtIdr;
+                const totalIdr = usdVal * rateIdr;
                 
                 document.getElementById('idrOutput').innerText = new Intl.NumberFormat('id-IDR', {
                     style: 'currency', currency: 'IDR', maximumFractionDigits: 0
                 }).format(totalIdr);
                 
-                document.getElementById('rateInfo').innerText = `Live Rate: Rp ${usdtIdr.toLocaleString('id-IDR')} (Indodax)`;
+                document.getElementById('rateInfo').innerText = `Fair Rate: Rp ${rateIdr.toLocaleString('id-IDR')}`;
 
-                // 2. Ambil Data Global dari Binance (BTC, ETH, SOL, BNB)
+                // 2. Ambil Harga Koin Global dari Binance
                 const pairs = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT'];
                 for (let pair of pairs) {
-                    const resBinance = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${pair}`);
-                    const dataB = await resBinance.json();
+                    const resB = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${pair}`);
+                    const dataB = await resB.json();
                     
                     const symbol = pair.replace('USDT', '');
                     const priceEl = document.getElementById(`price-${symbol}`);
@@ -135,22 +134,21 @@
                     priceEl.innerText = '$ ' + parseFloat(dataB.lastPrice).toLocaleString();
                     const change = parseFloat(dataB.priceChangePercent).toFixed(2);
                     changeEl.innerText = `${change > 0 ? '+' : ''}${change}%`;
-                    changeEl.className = `text-xs font-bold ${change >= 0 ? 'text-emerald-500' : 'text-rose-500'}`;
+                    changeEl.className = `text-xs font-bold ${change >= 0 ? 'text-green-400' : 'text-red-500'}`;
                 }
 
                 document.getElementById('status').innerText = "LIVE SYNC: " + new Date().toLocaleTimeString();
 
             } catch (err) {
-                console.error("Gagal update data:", err);
+                console.error("Error Bro:", err);
                 document.getElementById('status').innerText = "CONNECTION ERROR";
-                document.getElementById('status').className = "text-[10px] font-bold text-red-500 bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20";
             }
         }
 
-        // Jalankan & Set Interval
-        document.getElementById('usdInput').addEventListener('input', updateMarket);
-        updateMarket();
-        setInterval(updateMarket, 5000); // Refresh tiap 5 detik
+        // Jalankan
+        document.getElementById('usdInput').addEventListener('input', updateData);
+        updateData();
+        setInterval(updateData, 5000); // Update tiap 5 detik biar enteng
     </script>
 </body>
 </html>
