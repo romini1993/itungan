@@ -5,633 +5,524 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Kurs Crypto</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --bg: #0a0a0f;
-    --surface: #111118;
-    --card: #16161f;
-    --border: rgba(255,255,255,0.07);
-    --border-hover: rgba(255,255,255,0.14);
-    --text: #f0eff8;
-    --muted: #7a7990;
-    --accent: #7c6af7;
-    --accent-glow: rgba(124,106,247,0.15);
-    --green: #22d3a0;
-    --red: #f05d6e;
-    --amber: #f5a623;
-    --mono: 'Space Mono', monospace;
-    --sans: 'DM Sans', sans-serif;
-  }
+:root {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --card: #16161f;
+  --border: rgba(255,255,255,0.07);
+  --border-hover: rgba(255,255,255,0.14);
+  --text: #f0eff8;
+  --muted: #7a7990;
+  --accent: #7c6af7;
+  --accent-glow: rgba(124,106,247,0.15);
+  --green: #22d3a0;
+  --red: #f05d6e;
+  --mono: 'Space Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    min-height: 100vh;
-    padding: 0 0 80px;
-  }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
 
-  /* ── header ── */
-  header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(10,10,15,0.85);
-    backdrop-filter: blur(18px);
-    border-bottom: 1px solid var(--border);
-    padding: 14px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .logo {
-    font-family: var(--mono);
-    font-size: 15px;
-    letter-spacing: 0.08em;
-    color: var(--accent);
-  }
-  .logo span { color: var(--muted); }
-  .last-update {
-    font-size: 11px;
-    color: var(--muted);
-    font-family: var(--mono);
-  }
-  .refresh-btn {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    border-radius: 8px;
-    padding: 6px 12px;
-    font-size: 12px;
-    cursor: pointer;
-    font-family: var(--sans);
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .refresh-btn.spinning svg { animation: spin 0.8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(10,10,15,0.92);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border);
+  padding: 13px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo { font-family: var(--mono); font-size: 14px; letter-spacing: .1em; color: var(--accent); }
+.logo span { color: var(--muted); }
+.hdr-right { display: flex; align-items: center; gap: 10px; }
+.upd-label { font-size: 10px; color: var(--muted); font-family: var(--mono); }
+.refresh-btn {
+  background: none; border: 1px solid var(--border); color: var(--muted);
+  border-radius: 8px; padding: 5px 11px; font-size: 12px;
+  cursor: pointer; font-family: var(--sans);
+  display: flex; align-items: center; gap: 6px; transition: all .2s;
+}
+.refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+.refresh-btn.spin svg { animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ── main layout ── */
-  main {
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 0 20px;
-  }
+main { max-width: 860px; margin: 0 auto; padding: 0 20px; }
 
-  /* ── converter block ── */
-  .converter-wrap {
-    margin-top: 28px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    overflow: hidden;
-  }
-  .converter-header {
-    padding: 20px 24px 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .converter-title {
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    font-family: var(--mono);
-  }
-  .rate-badge {
-    font-family: var(--mono);
-    font-size: 11px;
-    background: var(--accent-glow);
-    color: var(--accent);
-    border: 1px solid rgba(124,106,247,0.25);
-    border-radius: 6px;
-    padding: 3px 10px;
-  }
+/* converter */
+.conv-wrap {
+  margin-top: 26px;
+  background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+}
+.conv-top {
+  padding: 18px 22px 0;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.conv-lbl { font-size: 10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); font-family:var(--mono); }
+.rate-badge {
+  font-family:var(--mono); font-size:11px;
+  background:var(--accent-glow); color:var(--accent);
+  border:1px solid rgba(124,106,247,.25); border-radius:6px; padding:3px 10px;
+}
+.conv-grid {
+  display:grid; grid-template-columns:1fr auto 1fr;
+  padding:18px 22px 22px; align-items:center;
+}
+.cur-box {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:14px; padding:15px 17px; transition:border-color .2s;
+}
+.cur-box:focus-within { border-color:var(--accent); }
+.cur-box label {
+  display:flex; align-items:center; gap:7px;
+  font-size:10px; color:var(--muted); letter-spacing:.08em;
+  margin-bottom:8px; font-family:var(--mono);
+}
+.flag { font-size:17px; line-height:1; }
+.cur-box input {
+  width:100%; background:none; border:none; outline:none;
+  color:var(--text); font-family:var(--mono); font-size:22px; font-weight:700;
+}
+.cur-box input::placeholder { color:var(--muted); }
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
 
-  .converter-grid {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    gap: 0;
-    padding: 20px 24px 24px;
-    align-items: center;
-  }
-  .currency-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 16px 18px;
-    transition: border-color 0.2s;
-  }
-  .currency-box:focus-within { border-color: var(--accent); }
-  .currency-box label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 0.08em;
-    margin-bottom: 8px;
-    font-family: var(--mono);
-  }
-  .flag { font-size: 18px; line-height: 1; }
-  .currency-box input {
-    width: 100%;
-    background: none;
-    border: none;
-    outline: none;
-    color: var(--text);
-    font-family: var(--mono);
-    font-size: 24px;
-    font-weight: 700;
-  }
-  .currency-box input::placeholder { color: var(--muted); }
+.swap-btn {
+  display:flex; align-items:center; justify-content:center;
+  width:38px; height:38px;
+  background:var(--surface); border:1px solid var(--border); border-radius:50%;
+  cursor:pointer; transition:all .2s; margin:0 12px; flex-shrink:0; color:var(--muted);
+}
+.swap-btn:hover { border-color:var(--accent); color:var(--accent); transform:rotate(180deg); }
 
-  .swap-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin: 0 10px;
-    flex-shrink: 0;
-    color: var(--muted);
-  }
-  .swap-icon:hover { border-color: var(--accent); color: var(--accent); transform: rotate(180deg); }
+/* section */
+.sec-head {
+  display:flex; align-items:center; justify-content:space-between;
+  margin:32px 0 14px;
+}
+.sec-title { font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); font-family:var(--mono); }
 
-  /* ── watchlist ── */
-  .section-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin: 36px 0 16px;
-  }
-  .section-title {
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    font-family: var(--mono);
-  }
-  .add-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--accent-glow);
-    border: 1px solid rgba(124,106,247,0.3);
-    color: var(--accent);
-    border-radius: 10px;
-    padding: 7px 14px;
-    font-size: 13px;
-    cursor: pointer;
-    font-family: var(--sans);
-    font-weight: 500;
-    transition: all 0.2s;
-  }
-  .add-btn:hover { background: rgba(124,106,247,0.25); }
+.add-btn {
+  display:flex; align-items:center; gap:6px;
+  background:var(--accent-glow); border:1px solid rgba(124,106,247,.3);
+  color:var(--accent); border-radius:10px; padding:7px 14px;
+  font-size:13px; cursor:pointer; font-family:var(--sans); font-weight:500;
+  transition:all .2s;
+}
+.add-btn:hover { background:rgba(124,106,247,.25); }
 
-  /* ── coin row ── */
-  .coins-list { display: flex; flex-direction: column; gap: 10px; }
-  .coin-row {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 16px 20px;
-    display: grid;
-    grid-template-columns: 44px 1fr auto;
-    align-items: center;
-    gap: 14px;
-    transition: border-color 0.2s, background 0.2s;
-    animation: fadeUp 0.35s ease both;
-  }
-  .coin-row:hover { border-color: var(--border-hover); background: #1a1a25; }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
+.error-bar {
+  background:rgba(240,93,110,.08); border:1px solid rgba(240,93,110,.25);
+  border-radius:10px; padding:9px 15px; font-size:13px; color:var(--red);
+  margin-bottom:14px; display:none;
+}
 
-  .coin-logo {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: var(--surface);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    flex-shrink: 0;
-    border: 1px solid var(--border);
-  }
-  .coin-logo img { width: 32px; height: 32px; object-fit: contain; }
-  .coin-logo-fallback {
-    font-family: var(--mono);
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--accent);
-  }
+/* coin rows */
+.coin-list { display:flex; flex-direction:column; gap:9px; }
+.coin-row {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:16px; padding:14px 18px;
+  display:grid; grid-template-columns:44px 1fr auto;
+  align-items:center; gap:13px;
+  transition:border-color .2s, background .2s;
+  animation:fadeUp .3s ease both;
+}
+.coin-row:hover { border-color:var(--border-hover); background:#1a1a25; }
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(10px); }
+  to   { opacity:1; transform:translateY(0); }
+}
 
-  .coin-info { min-width: 0; }
-  .coin-name {
-    font-weight: 600;
-    font-size: 15px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .coin-symbol {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 2px;
-  }
+.coin-logo {
+  width:44px; height:44px; border-radius:50%;
+  background:var(--surface); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden; flex-shrink:0; position:relative;
+}
+.coin-logo img { width:32px; height:32px; object-fit:contain; display:block; }
+.coin-logo .fallback {
+  font-family:var(--mono); font-size:10px; font-weight:700;
+  color:var(--accent); display:none; text-align:center;
+}
 
-  .coin-prices { text-align: right; flex-shrink: 0; }
-  .coin-usd {
-    font-family: var(--mono);
-    font-size: 16px;
-    font-weight: 700;
-  }
-  .coin-idr {
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--muted);
-    margin-top: 3px;
-  }
-  .coin-change {
-    font-family: var(--mono);
-    font-size: 11px;
-    margin-top: 4px;
-    padding: 2px 7px;
-    border-radius: 5px;
-    display: inline-block;
-  }
-  .coin-change.up   { color: var(--green); background: rgba(34,211,160,0.1); }
-  .coin-change.down { color: var(--red);   background: rgba(240,93,110,0.1); }
+.coin-info { min-width:0; }
+.coin-name { font-weight:600; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.coin-sym  { font-family:var(--mono); font-size:11px; color:var(--muted); margin-top:2px; }
 
-  .coin-row-actions {
-    position: relative;
-  }
-  .del-btn {
-    background: none;
-    border: none;
-    color: var(--muted);
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 6px;
-    opacity: 0;
-    transition: opacity 0.2s, color 0.2s;
-    display: flex;
-  }
-  .coin-row:hover .del-btn { opacity: 1; }
-  .del-btn:hover { color: var(--red); }
+.coin-right { text-align:right; flex-shrink:0; }
+.coin-usd { font-family:var(--mono); font-size:16px; font-weight:700; }
+.coin-idr { font-family:var(--mono); font-size:11px; color:var(--muted); margin-top:3px; }
+.chg {
+  font-family:var(--mono); font-size:11px; margin-top:4px;
+  padding:2px 7px; border-radius:5px; display:inline-block;
+}
+.chg.up   { color:var(--green); background:rgba(34,211,160,.1); }
+.chg.down { color:var(--red);   background:rgba(240,93,110,.1); }
 
-  /* skeleton */
-  .skeleton {
-    background: linear-gradient(90deg, var(--surface) 25%, var(--card) 50%, var(--surface) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.2s infinite;
-    border-radius: 8px;
-  }
-  @keyframes shimmer { to { background-position: -200% 0; } }
+.del-btn {
+  background:none; border:none; color:var(--muted);
+  cursor:pointer; padding:4px; border-radius:6px;
+  opacity:0; transition:opacity .2s, color .2s; display:flex;
+}
+.coin-row:hover .del-btn { opacity:1; }
+.del-btn:hover { color:var(--red); }
 
-  /* ── modal ── */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    backdrop-filter: blur(6px);
-    z-index: 200;
-    align-items: center;
-    justify-content: center;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--card);
-    border: 1px solid var(--border-hover);
-    border-radius: 20px;
-    padding: 28px;
-    width: min(480px, calc(100vw - 32px));
-    animation: modalIn 0.2s ease;
-  }
-  @keyframes modalIn {
-    from { opacity: 0; transform: scale(0.95) translateY(10px); }
-    to   { opacity: 1; transform: scale(1) translateY(0); }
-  }
-  .modal h2 {
-    font-size: 17px;
-    font-weight: 600;
-    margin-bottom: 20px;
-  }
-  .modal-search {
-    width: 100%;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px 16px;
-    font-size: 14px;
-    color: var(--text);
-    outline: none;
-    font-family: var(--sans);
-    transition: border-color 0.2s;
-    margin-bottom: 14px;
-  }
-  .modal-search:focus { border-color: var(--accent); }
-  .modal-search::placeholder { color: var(--muted); }
+.skel {
+  display:inline-block; border-radius:6px;
+  background:linear-gradient(90deg,var(--surface) 25%,var(--card) 50%,var(--surface) 75%);
+  background-size:200% 100%; animation:shimmer 1.2s infinite;
+}
+@keyframes shimmer { to { background-position:-200% 0; } }
 
-  .search-results {
-    max-height: 280px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
-  }
-  .result-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 12px;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background 0.15s;
-    border: 1px solid transparent;
-  }
-  .result-item:hover { background: var(--surface); border-color: var(--border); }
-  .result-item.added { opacity: 0.4; pointer-events: none; }
-  .result-thumb {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: contain;
-    flex-shrink: 0;
-  }
-  .result-name { font-size: 14px; font-weight: 500; }
-  .result-sym  { font-size: 11px; color: var(--muted); font-family: var(--mono); }
-  .modal-cancel {
-    margin-top: 16px;
-    width: 100%;
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 11px;
-    color: var(--muted);
-    cursor: pointer;
-    font-family: var(--sans);
-    font-size: 14px;
-    transition: all 0.2s;
-  }
-  .modal-cancel:hover { border-color: var(--border-hover); color: var(--text); }
+/* modal */
+.overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,.78); backdrop-filter:blur(6px);
+  z-index:200; align-items:center; justify-content:center; padding:20px;
+}
+.overlay.open { display:flex; }
+.modal {
+  background:var(--card); border:1px solid var(--border-hover);
+  border-radius:20px; padding:26px;
+  width:min(480px,100%); animation:mIn .2s ease;
+}
+@keyframes mIn {
+  from { opacity:0; transform:scale(.95) translateY(8px); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
+}
+.modal h2 { font-size:16px; font-weight:600; margin-bottom:18px; }
+.m-search {
+  width:100%; background:var(--surface); border:1px solid var(--border);
+  border-radius:12px; padding:11px 15px; font-size:14px;
+  color:var(--text); outline:none; font-family:var(--sans);
+  transition:border-color .2s; margin-bottom:12px;
+}
+.m-search:focus { border-color:var(--accent); }
+.m-search::placeholder { color:var(--muted); }
 
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--muted);
-    font-size: 14px;
-  }
-  .empty-state svg { margin-bottom: 12px; opacity: 0.4; }
+.results {
+  max-height:280px; overflow-y:auto;
+  display:flex; flex-direction:column; gap:5px;
+  scrollbar-width:thin; scrollbar-color:var(--border) transparent;
+}
+.r-item {
+  display:flex; align-items:center; gap:11px;
+  padding:9px 11px; border-radius:10px; cursor:pointer;
+  transition:background .15s; border:1px solid transparent;
+}
+.r-item:hover { background:var(--surface); border-color:var(--border); }
+.r-item.added { opacity:.4; pointer-events:none; }
+.r-thumb {
+  width:30px; height:30px; border-radius:50%;
+  object-fit:contain; flex-shrink:0; background:var(--surface);
+}
+.r-name { font-size:13px; font-weight:500; }
+.r-sym  { font-size:11px; color:var(--muted); font-family:var(--mono); }
 
-  .error-notice {
-    background: rgba(240,93,110,0.08);
-    border: 1px solid rgba(240,93,110,0.25);
-    border-radius: 10px;
-    padding: 10px 16px;
-    font-size: 13px;
-    color: var(--red);
-    margin-bottom: 16px;
-    display: none;
-  }
+.m-cancel {
+  margin-top:14px; width:100%; background:none;
+  border:1px solid var(--border); border-radius:12px; padding:10px;
+  color:var(--muted); cursor:pointer; font-family:var(--sans); font-size:14px;
+  transition:all .2s;
+}
+.m-cancel:hover { border-color:var(--border-hover); color:var(--text); }
 
-  @media (max-width: 520px) {
-    .converter-grid { grid-template-columns: 1fr; gap: 12px; }
-    .swap-icon { transform: rotate(90deg); margin: 0 auto; }
-    .swap-icon:hover { transform: rotate(270deg); }
-    header { padding: 12px 16px; }
-    main { padding: 0 14px; }
-  }
+.empty { text-align:center; padding:36px 20px; color:var(--muted); font-size:14px; }
+
+@media (max-width:520px) {
+  .conv-grid { grid-template-columns:1fr; gap:10px; }
+  .swap-btn { transform:rotate(90deg); margin:0 auto; }
+  header { padding:11px 15px; }
+  main { padding:0 13px; }
+}
 </style>
 </head>
 <body>
 
 <header>
   <div class="logo">KURS<span>/</span>CRYPTO</div>
-  <div style="display:flex;align-items:center;gap:12px;">
-    <span class="last-update" id="updateLabel">—</span>
-    <button class="refresh-btn" id="refreshBtn" onclick="fetchAll()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+  <div class="hdr-right">
+    <span class="upd-label" id="updLabel">—</span>
+    <button class="refresh-btn" id="refreshBtn" onclick="init()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"/>
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+      </svg>
       Refresh
     </button>
   </div>
 </header>
 
 <main>
-
-  <!-- CONVERTER -->
-  <div class="converter-wrap">
-    <div class="converter-header">
-      <span class="converter-title">Konverter USD ⟷ IDR</span>
+  <div class="conv-wrap">
+    <div class="conv-top">
+      <span class="conv-lbl">Konverter USD ⟷ IDR</span>
       <span class="rate-badge" id="rateBadge">memuat…</span>
     </div>
-    <div class="converter-grid">
-      <div class="currency-box">
-        <label>
-          <span class="flag">🇺🇸</span>
-          USD · Dollar
-        </label>
-        <input type="number" id="usdInput" placeholder="0" value="1" oninput="convertFromUSD()" />
+    <div class="conv-grid">
+      <div class="cur-box">
+        <label><span class="flag">🇺🇸</span> USD · Dollar</label>
+        <input type="number" id="usdIn" placeholder="0" value="1" oninput="fromUSD()" />
       </div>
-
-      <div class="swap-icon" onclick="swapCurrencies()" title="Tukar">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button class="swap-btn" onclick="doSwap()">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
           <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/>
           <polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
         </svg>
-      </div>
-
-      <div class="currency-box">
-        <label>
-          <span class="flag">🇮🇩</span>
-          IDR · Rupiah
-        </label>
-        <input type="number" id="idrInput" placeholder="0" oninput="convertFromIDR()" />
+      </button>
+      <div class="cur-box">
+        <label><span class="flag">🇮🇩</span> IDR · Rupiah</label>
+        <input type="number" id="idrIn" placeholder="0" oninput="fromIDR()" />
       </div>
     </div>
   </div>
 
-  <!-- WATCHLIST -->
-  <div class="section-head">
-    <span class="section-title">Watchlist Koin</span>
+  <div class="sec-head">
+    <span class="sec-title">Watchlist Koin</span>
     <button class="add-btn" onclick="openModal()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
       Tambah Koin
     </button>
   </div>
 
-  <div class="error-notice" id="errorNotice">Gagal memuat data. Cek koneksi internet kamu.</div>
-
-  <div class="coins-list" id="coinsList">
-    <!-- rows injected by JS -->
-  </div>
-
+  <div class="error-bar" id="errBar">Gagal memuat data — cek koneksi internet kamu.</div>
+  <div class="coin-list" id="coinList"></div>
 </main>
 
-<!-- ADD COIN MODAL -->
-<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+<div class="overlay" id="overlay" onclick="bgClose(event)">
   <div class="modal">
     <h2>Tambah Koin</h2>
-    <input class="modal-search" id="modalSearch" placeholder="Cari nama koin (mis. Bitcoin, Solana…)" oninput="filterCoins()" />
-    <div class="search-results" id="searchResults">
-      <div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">Memuat daftar koin…</div>
+    <input class="m-search" id="mSearch" placeholder="Cari nama atau simbol koin…" oninput="filterList()" />
+    <div class="results" id="mResults">
+      <div style="text-align:center;padding:18px;color:var(--muted);font-size:13px">Memuat daftar koin…</div>
     </div>
-    <button class="modal-cancel" onclick="closeModal()">Batal</button>
+    <button class="m-cancel" onclick="closeModal()">Batal</button>
   </div>
 </div>
 
 <script>
-const STORAGE_KEY = 'kurs_crypto_watchlist';
+/* ── state ── */
+const LS = 'kurs_wl_v4';
+let rate = 16200;
+let priceCache = {};
+let cgList = [];
+let wl = loadWL();
 
-let usdIdr = 16200;
-let coinPrices = {};
-let allCoins = [];
-let watchlist = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') || [
-  { id: 'bitcoin',  name: 'Bitcoin',  symbol: 'BTC', image: '' },
-  { id: 'ethereum', name: 'Ethereum', symbol: 'ETH', image: '' },
-  { id: 'solana',   name: 'Solana',   symbol: 'SOL', image: '' },
-];
+function loadWL() {
+  try { return JSON.parse(localStorage.getItem(LS)) || dflt(); } catch { return dflt(); }
+}
+function dflt() {
+  return [
+    { id:'bitcoin',  sym:'BTC', name:'Bitcoin' },
+    { id:'ethereum', sym:'ETH', name:'Ethereum' },
+    { id:'solana',   sym:'SOL', name:'Solana' },
+  ];
+}
+function saveWL() { localStorage.setItem(LS, JSON.stringify(wl)); }
 
-/* ──────────────────────────────
-   FETCH
-────────────────────────────── */
-async function fetchAll() {
-  const btn = document.getElementById('refreshBtn');
-  btn.classList.add('spinning');
-  document.getElementById('errorNotice').style.display = 'none';
-
-  try {
-    await Promise.all([fetchUsdIdr(), fetchCoinData()]);
-    document.getElementById('updateLabel').textContent = 'Update: ' + new Date().toLocaleTimeString('id-ID');
-  } catch(e) {
-    document.getElementById('errorNotice').style.display = 'block';
-  } finally {
-    btn.classList.remove('spinning');
+/* ── logo sources (Gate → CoinCap → OKX → fallback text) ── */
+function logoSrcs(sym) {
+  const s = sym.toLowerCase();
+  return [
+    `https://gate.io/images/coin_icon/64/${s}.png`,
+    `https://assets.coincap.io/assets/icons/${s}@2x.png`,
+    `https://static.okx.com/cdn/oksupport/asset/currency/icon/${s}.png`,
+  ];
+}
+function imgErr(img, sym, retry) {
+  retry = parseInt(retry) || 0;
+  const srcs = logoSrcs(sym);
+  if (retry < srcs.length) {
+    img.dataset.retry = retry + 1;
+    img.src = srcs[retry];
+  } else {
+    img.style.display = 'none';
+    const fb = img.parentElement.querySelector('.fallback');
+    if (fb) fb.style.display = 'block';
   }
 }
 
-async function fetchUsdIdr() {
-  const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=idr');
+/* ── fetch rate from Binance (USDT/IDR pair) ── */
+async function fetchRate() {
+  const r = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=USDTIDR');
   const d = await r.json();
-  usdIdr = d.tether?.idr || 16200;
-  document.getElementById('rateBadge').textContent = '1 USD = Rp ' + usdIdr.toLocaleString('id-ID');
-  convertFromUSD();
+  if (d.price) {
+    rate = parseFloat(d.price);
+    document.getElementById('rateBadge').textContent =
+      '1 USD = Rp ' + Math.round(rate).toLocaleString('id-ID');
+    fromUSD();
+  }
 }
 
-async function fetchCoinData() {
-  const ids = watchlist.map(c => c.id).join(',');
-  if (!ids) return;
-  const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true&include_image=true`);
-  const d = await r.json();
-  coinPrices = d;
+/* ── fetch prices: Bybit → Binance → CoinGecko ── */
+async function fetchPrices() {
+  const stables = new Set(['USDT','USDC','USD','BUSD','DAI','FDUSD']);
+  const syms = wl.map(c => c.sym.toUpperCase());
 
-  // update images from price API too
-  watchlist.forEach(coin => {
-    if (d[coin.id]?.image) coin.image = d[coin.id].image;
+  syms.filter(s => stables.has(s)).forEach(s => {
+    priceCache[s] = { usd: 1, chg: 0 };
   });
-  saveWatchlist();
+
+  let todo = syms.filter(s => !stables.has(s));
+  if (!todo.length) return;
+
+  /* Bybit batch */
+  try {
+    const r = await fetch('https://api.bybit.com/v5/market/tickers?category=spot');
+    const d = await r.json();
+    (d.result?.list || []).forEach(t => {
+      const s = t.symbol.replace(/USDT$/, '');
+      if (todo.includes(s)) {
+        priceCache[s] = { usd: parseFloat(t.lastPrice), chg: parseFloat(t.price24hPcnt) * 100 };
+        todo = todo.filter(x => x !== s);
+      }
+    });
+  } catch {}
+
+  /* Binance batch */
+  if (todo.length) {
+    try {
+      const r = await fetch('https://api.binance.com/api/v3/ticker/24hr');
+      const d = await r.json();
+      d.forEach(t => {
+        const s = t.symbol.replace(/USDT$/, '');
+        if (todo.includes(s)) {
+          priceCache[s] = { usd: parseFloat(t.lastPrice), chg: parseFloat(t.priceChangePercent) };
+          todo = todo.filter(x => x !== s);
+        }
+      });
+    } catch {}
+  }
+
+  /* CoinGecko fallback for remaining */
+  if (todo.length) {
+    const cgMap = {};
+    wl.forEach(c => { cgMap[c.sym.toUpperCase()] = c.id; });
+    const ids = todo.map(s => cgMap[s]).filter(Boolean).join(',');
+    if (ids) {
+      try {
+        const r = await fetch(
+          `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`
+        );
+        const d = await r.json();
+        todo.forEach(sym => {
+          const id = cgMap[sym];
+          if (id && d[id]) {
+            priceCache[sym] = { usd: d[id].usd, chg: d[id].usd_24h_change ?? 0 };
+          }
+        });
+      } catch {}
+    }
+  }
+}
+
+/* ── init ── */
+async function init() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spin');
+  document.getElementById('errBar').style.display = 'none';
   renderCoins();
+
+  try {
+    await Promise.all([fetchRate(), fetchPrices()]);
+    document.getElementById('updLabel').textContent =
+      'Update: ' + new Date().toLocaleTimeString('id-ID');
+  } catch {
+    document.getElementById('errBar').style.display = 'block';
+  }
+
+  renderCoins();
+  btn.classList.remove('spin');
 }
 
-async function fetchAllCoins() {
-  if (allCoins.length) return;
-  const r = await fetch('https://api.coingecko.com/api/v3/coins/list?include_platform=false');
-  allCoins = await r.json();
-  filterCoins();
+/* ── converter ── */
+function fromUSD() {
+  const v = parseFloat(document.getElementById('usdIn').value);
+  document.getElementById('idrIn').value = isNaN(v) ? '' : Math.round(v * rate);
+}
+function fromIDR() {
+  const v = parseFloat(document.getElementById('idrIn').value);
+  document.getElementById('usdIn').value = isNaN(v) ? '' : (v / rate).toFixed(6);
+}
+function doSwap() {
+  const u = document.getElementById('usdIn').value;
+  const i = document.getElementById('idrIn').value;
+  if (u) { document.getElementById('idrIn').value = Math.round(parseFloat(u)*rate); document.getElementById('usdIn').value = ''; }
+  else if (i) { document.getElementById('usdIn').value = (parseFloat(i)/rate).toFixed(6); document.getElementById('idrIn').value = ''; }
 }
 
-/* ──────────────────────────────
-   CONVERTER
-────────────────────────────── */
-function convertFromUSD() {
-  const v = parseFloat(document.getElementById('usdInput').value) || 0;
-  document.getElementById('idrInput').value = v ? (v * usdIdr).toFixed(0) : '';
-}
-function convertFromIDR() {
-  const v = parseFloat(document.getElementById('idrInput').value) || 0;
-  document.getElementById('usdInput').value = v ? (v / usdIdr).toFixed(6) : '';
-}
-function swapCurrencies() {
-  const u = document.getElementById('usdInput').value;
-  const i = document.getElementById('idrInput').value;
-  document.getElementById('usdInput').value = i ? (parseFloat(i)/usdIdr).toFixed(6) : '';
-  document.getElementById('idrInput').value = u ? (parseFloat(u)*usdIdr).toFixed(0) : '';
-}
-
-/* ──────────────────────────────
-   RENDER COINS
-────────────────────────────── */
-function fmtUSD(n) {
-  if (!n && n !== 0) return '—';
+/* ── format ── */
+function fUSD(n) {
+  if (n == null) return '—';
   if (n >= 1000) return '$' + n.toLocaleString('en-US', {maximumFractionDigits:2});
   if (n >= 1)    return '$' + n.toFixed(4);
-  return '$' + n.toFixed(6);
+  if (n >= .01)  return '$' + n.toFixed(6);
+  return '$' + n.toFixed(8);
 }
-function fmtIDR(n) {
-  if (!n && n !== 0) return '';
-  const idr = n * usdIdr;
-  if (idr >= 1e9)  return 'Rp ' + (idr/1e9).toFixed(2) + ' M';
-  if (idr >= 1e6)  return 'Rp ' + (idr/1e6).toFixed(2) + ' jt';
-  if (idr >= 1000) return 'Rp ' + idr.toLocaleString('id-ID', {maximumFractionDigits:0});
-  return 'Rp ' + idr.toFixed(2);
+function fIDR(n) {
+  if (n == null) return '';
+  const v = n * rate;
+  if (v >= 1e12) return 'Rp ' + (v/1e12).toFixed(2) + ' T';
+  if (v >= 1e9)  return 'Rp ' + (v/1e9).toFixed(2) + ' M';
+  if (v >= 1e6)  return 'Rp ' + (v/1e6).toFixed(2) + ' jt';
+  return 'Rp ' + Math.round(v).toLocaleString('id-ID');
 }
 
+/* ── render ── */
 function renderCoins() {
-  const list = document.getElementById('coinsList');
-  if (!watchlist.length) {
-    list.innerHTML = `<div class="empty-state">
-      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      <div>Belum ada koin di watchlist.</div>
-      <div style="font-size:12px;margin-top:6px">Klik "Tambah Koin" untuk mulai.</div>
+  const el = document.getElementById('coinList');
+  if (!wl.length) {
+    el.innerHTML = `<div class="empty">
+      <div style="font-size:30px;margin-bottom:10px">📭</div>
+      <div>Belum ada koin.</div>
+      <div style="font-size:12px;margin-top:5px">Klik "Tambah Koin" untuk mulai.</div>
     </div>`;
     return;
   }
 
-  list.innerHTML = watchlist.map((coin, i) => {
-    const p = coinPrices[coin.id];
-    const price = p?.usd;
-    const change = p?.usd_24h_change;
-    const isUp = change >= 0;
-    const imgSrc = coin.image || `https://coin-images.coingecko.com/coins/images/1/small/${coin.id}.png`;
+  el.innerHTML = wl.map((coin, i) => {
+    const p   = priceCache[coin.sym.toUpperCase()];
+    const usd = p?.usd;
+    const chg = p?.chg;
+    const up  = chg >= 0;
+    const s0  = logoSrcs(coin.sym)[0];
 
-    return `<div class="coin-row" style="animation-delay:${i*0.05}s">
+    return `<div class="coin-row" style="animation-delay:${i*.04}s">
       <div class="coin-logo">
-        ${coin.image
-          ? `<img src="${coin.image}" alt="${coin.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-          : ''}
-        <span class="coin-logo-fallback" style="${coin.image?'display:none':'display:flex'}">${coin.symbol.substring(0,3)}</span>
+        <img src="${s0}" data-retry="1" alt="${coin.sym}"
+          onerror="imgErr(this,'${coin.sym}',this.dataset.retry)" />
+        <span class="fallback">${coin.sym.slice(0,4)}</span>
       </div>
       <div class="coin-info">
         <div class="coin-name">${coin.name}</div>
-        <div class="coin-symbol">${coin.symbol.toUpperCase()}</div>
+        <div class="coin-sym">${coin.sym.toUpperCase()}</div>
       </div>
-      <div style="display:flex;align-items:center;gap:12px">
-        <div class="coin-prices">
-          <div class="coin-usd">${price != null ? fmtUSD(price) : '<span class="skeleton" style="width:80px;height:16px;display:inline-block"></span>'}</div>
-          <div class="coin-idr">${price != null ? fmtIDR(price) : ''}</div>
-          ${change != null ? `<div class="coin-change ${isUp?'up':'down'}">${isUp?'+':''}${change.toFixed(2)}%</div>` : ''}
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="coin-right">
+          ${usd != null
+            ? `<div class="coin-usd">${fUSD(usd)}</div>
+               <div class="coin-idr">${fIDR(usd)}</div>
+               ${chg != null ? `<div class="chg ${up?'up':'down'}">${up?'+':''}${chg.toFixed(2)}%</div>` : ''}`
+            : `<div class="coin-usd"><span class="skel" style="width:80px;height:15px"></span></div>
+               <div class="coin-idr"><span class="skel" style="width:60px;height:11px;margin-top:5px"></span></div>`
+          }
         </div>
         <button class="del-btn" onclick="removeCoin('${coin.id}')" title="Hapus">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            <path d="M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+          </svg>
         </button>
       </div>
     </div>`;
@@ -639,96 +530,114 @@ function renderCoins() {
 }
 
 function removeCoin(id) {
-  watchlist = watchlist.filter(c => c.id !== id);
-  delete coinPrices[id];
-  saveWatchlist();
-  renderCoins();
+  wl = wl.filter(c => c.id !== id);
+  saveWL(); renderCoins();
 }
 
-/* ──────────────────────────────
-   MODAL
-────────────────────────────── */
+/* ── modal ── */
 function openModal() {
-  document.getElementById('modalOverlay').classList.add('open');
-  document.getElementById('modalSearch').value = '';
-  document.getElementById('modalSearch').focus();
-  fetchAllCoins();
-  filterCoins();
+  document.getElementById('overlay').classList.add('open');
+  const inp = document.getElementById('mSearch');
+  inp.value = ''; inp.focus();
+  cgList.length ? filterList() : loadCGList();
 }
-function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('open');
-}
-function closeModalOutside(e) {
-  if (e.target === document.getElementById('modalOverlay')) closeModal();
+function closeModal() { document.getElementById('overlay').classList.remove('open'); }
+function bgClose(e) { if (e.target === document.getElementById('overlay')) closeModal(); }
+
+async function loadCGList() {
+  try {
+    const r = await fetch('https://api.coingecko.com/api/v3/coins/list?include_platform=false');
+    cgList = await r.json();
+    filterList();
+  } catch {
+    document.getElementById('mResults').innerHTML =
+      '<div style="text-align:center;padding:14px;color:var(--red);font-size:13px">Gagal memuat daftar koin.</div>';
+  }
 }
 
-function filterCoins() {
-  const q = document.getElementById('modalSearch').value.trim().toLowerCase();
-  const box = document.getElementById('searchResults');
-  const addedIds = new Set(watchlist.map(c => c.id));
+function filterList() {
+  const q = document.getElementById('mSearch').value.trim().toLowerCase();
+  const box = document.getElementById('mResults');
+  const addedIds = new Set(wl.map(c => c.id));
 
-  if (!allCoins.length) {
-    box.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">Memuat daftar koin…</div>';
+  if (!cgList.length) return;
+
+  let hits = q
+    ? cgList.filter(c => c.name.toLowerCase().includes(q) || c.symbol.toLowerCase().startsWith(q))
+    : cgList;
+  hits = hits.slice(0, 60);
+
+  if (!hits.length) {
+    box.innerHTML = '<div style="text-align:center;padding:14px;color:var(--muted);font-size:13px">Tidak ditemukan.</div>';
     return;
   }
 
-  let results = allCoins;
-  if (q) results = allCoins.filter(c => c.name.toLowerCase().includes(q) || c.symbol.toLowerCase().includes(q));
-  results = results.slice(0, 80);
-
-  if (!results.length) {
-    box.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">Tidak ditemukan.</div>';
-    return;
-  }
-
-  box.innerHTML = results.map(c => {
+  box.innerHTML = hits.map(c => {
     const isAdded = addedIds.has(c.id);
-    return `<div class="result-item ${isAdded?'added':''}" onclick="${isAdded?'':``addCoin('${c.id}','${c.name.replace(/'/g,"\\'")}','${c.symbol}')``}">
-      <img class="result-thumb" src="https://coin-images.coingecko.com/coins/images/1/small/${c.id}.png"
-        onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'32\\' height=\\'32\\'%3E%3Ccircle cx=\\'16\\' cy=\\'16\\' r=\\'16\\' fill=\\'%23222\\'/\u003E%3Ctext x=\\'16\\' y=\\'21\\' text-anchor=\\'middle\\' font-size=\\'11\\' fill=\\'%23888\\'%3E${c.symbol.substring(0,3).toUpperCase()}%3C/text%3E%3C/svg%3E'"
-        alt="${c.name}" />
+    const src0 = logoSrcs(c.symbol)[0];
+    const esc = (s) => s.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    return `<div class="r-item ${isAdded ? 'added' : ''}"
+        onclick="${isAdded ? '' : `pickCoin('${esc(c.id)}','${esc(c.name)}','${esc(c.symbol)}')`}">
+      <img class="r-thumb" src="${src0}" data-retry="1" alt="${c.symbol}"
+        onerror="imgErr(this,'${c.symbol.toUpperCase()}',this.dataset.retry)" />
       <div>
-        <div class="result-name">${c.name}</div>
-        <div class="result-sym">${c.symbol.toUpperCase()} ${isAdded?'· sudah ditambahkan':''}</div>
+        <div class="r-name">${c.name}</div>
+        <div class="r-sym">${c.symbol.toUpperCase()}${isAdded ? ' · sudah ada' : ''}</div>
       </div>
     </div>`;
   }).join('');
 }
 
-async function addCoin(id, name, symbol) {
+async function pickCoin(id, name, sym) {
   closeModal();
+  const symU = sym.toUpperCase();
+  wl.push({ id, name, sym: symU });
+  saveWL(); renderCoins();
 
-  // fetch image from CoinGecko detail
-  let image = '';
+  /* fetch price immediately for new coin */
+  const stables = new Set(['USDT','USDC','USD','BUSD','DAI','FDUSD']);
+  if (stables.has(symU)) { priceCache[symU] = { usd: 1, chg: 0 }; renderCoins(); return; }
+
+  let done = false;
+
+  /* Bybit */
   try {
-    const r = await fetch(`https://api.coingecko.com/api/v3/coins/${id}?localization=false&tickers=false&market_data=false&community_data=false&developer_data=false`);
+    const r = await fetch(`https://api.bybit.com/v5/market/tickers?category=spot&symbol=${symU}USDT`);
     const d = await r.json();
-    image = d.image?.small || d.image?.thumb || '';
-  } catch(_) {}
+    const t = d.result?.list?.[0];
+    if (t && parseFloat(t.lastPrice) > 0) {
+      priceCache[symU] = { usd: parseFloat(t.lastPrice), chg: parseFloat(t.price24hPcnt)*100 };
+      done = true;
+    }
+  } catch {}
 
-  watchlist.push({ id, name, symbol, image });
-  saveWatchlist();
+  /* Binance */
+  if (!done) {
+    try {
+      const r = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symU}USDT`);
+      const d = await r.json();
+      if (d.lastPrice && parseFloat(d.lastPrice) > 0) {
+        priceCache[symU] = { usd: parseFloat(d.lastPrice), chg: parseFloat(d.priceChangePercent) };
+        done = true;
+      }
+    } catch {}
+  }
+
+  /* CoinGecko */
+  if (!done) {
+    try {
+      const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd&include_24hr_change=true`);
+      const d = await r.json();
+      if (d[id]) priceCache[symU] = { usd: d[id].usd, chg: d[id].usd_24h_change ?? 0 };
+    } catch {}
+  }
+
   renderCoins();
-
-  // fetch its price
-  try {
-    const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd&include_24hr_change=true`);
-    const d = await r.json();
-    Object.assign(coinPrices, d);
-    renderCoins();
-  } catch(_) {}
 }
 
-function saveWatchlist() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(watchlist));
-}
-
-/* ──────────────────────────────
-   INIT
-────────────────────────────── */
-renderCoins();
-fetchAll();
-setInterval(fetchAll, 60000);
+/* ── boot ── */
+init();
+setInterval(init, 60000);
 </script>
 </body>
 </html>
