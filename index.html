@@ -10,40 +10,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="Kurs Crypto" />
-<link rel="manifest" id="pwa-manifest" />
+<link rel="manifest" href="manifest.json" />
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
-<script>
-// Inject PWA manifest as blob URL (works on Chrome Android)
-(function() {
-  const manifest = {
-    name: "Kurs Crypto",
-    short_name: "KursCrypto",
-    description: "Konverter harga crypto realtime",
-    start_url: "./",
-    scope: "./",
-    display: "standalone",
-    orientation: "portrait",
-    background_color: "#0a0a0f",
-    theme_color: "#0a0a0f",
-    icons: [
-      {
-        src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%230a0a0f'/><text x='256' y='340' font-size='300' text-anchor='middle' fill='%237c6af7' font-family='monospace' font-weight='700'>₿</text></svg>",
-        sizes: "512x512",
-        type: "image/svg+xml",
-        purpose: "any"
-      },
-      {
-        src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%230a0a0f'/><text x='256' y='340' font-size='300' text-anchor='middle' fill='%237c6af7' font-family='monospace' font-weight='700'>₿</text></svg>",
-        sizes: "192x192",
-        type: "image/svg+xml",
-        purpose: "maskable"
-      }
-    ]
-  };
-  const blob = new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'});
-  document.getElementById('pwa-manifest').href = URL.createObjectURL(blob);
-})();
-</script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -365,11 +333,6 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
   </div>
 
   <div class="err-bar" id="errBar">Gagal memuat data — cek koneksi internet kamu.</div>
-  <div id="pwaBanner" style="display:none;background:rgba(124,106,247,.1);border:1px solid rgba(124,106,247,.3);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--muted);line-height:1.6">
-    <span style="color:var(--accent);font-weight:600">Install sebagai App:</span>
-    Upload file ini ke <a href="https://pages.github.com" target="_blank" style="color:var(--accent)">GitHub Pages</a> (gratis + HTTPS), lalu buka di Chrome Android → menu ⋮ → <em>"Tambahkan ke layar utama"</em> — akan terpasang sebagai app fullscreen tanpa browser bar.
-    <button onclick="this.parentElement.style.display='none';localStorage.setItem('pwaDismiss','1')" style="float:right;background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;line-height:1;margin-top:-2px">×</button>
-  </div>
   <div class="coin-list" id="coinList"></div>
 
 </main>
@@ -903,11 +866,6 @@ if ('serviceWorker' in navigator) {
 ─────────────────────────────────────────── */
 init();
 setInterval(init, 60000);
-
-// Show PWA install hint if not already installed and not dismissed
-if (!localStorage.getItem('pwaDismiss') && !window.matchMedia('(display-mode: standalone)').matches) {
-  document.getElementById('pwaBanner').style.display = 'block';
-}
 </script>
 </body>
 </html>
