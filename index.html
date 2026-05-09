@@ -3,91 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kurs Realtime Fix</title>
+    <title>Kurs Realtime Satria</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #1a1a1a; color: white; font-family: sans-serif; }
-        .card { background: #2d2d2d; border-radius: 15px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .coin-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #3d3d3d; }
+        body { background: #0f172a; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        input { border: 1px solid #334155 !important; }
     </style>
 </head>
-<body class="p-6">
-    <div class="max-w-md mx-auto">
-        <h1 class="text-2xl font-bold text-center text-yellow-500 mb-6">KURS REALTIME</h1>
+<body class="p-4 md:p-10 flex flex-col items-center">
 
-        <!-- Konverter -->
-        <div class="card mb-6">
-            <p class="text-gray-400 text-sm mb-2">Input USD</p>
-            <input type="number" id="usdInput" value="1" class="w-full bg-black border border-gray-600 rounded p-3 text-xl font-bold mb-4 outline-none focus:border-yellow-500">
-            
-            <p class="text-gray-400 text-sm mb-1">Estimasi IDR</p>
-            <div id="idrResult" class="text-2xl font-bold text-green-400">Rp 0</div>
-        </div>
+    <div class="w-full max-w-lg">
+        <h1 class="text-3xl font-black text-center mb-8 text-blue-400">KURS REALTIME</h1>
 
-        <!-- Daftar Koin -->
-        <div class="card">
-            <h2 class="font-bold mb-4 border-bottom border-gray-500">Harga Crypto (USD)</h2>
-            <div id="cryptoList">
-                <p class="text-center text-gray-500">Narik data...</p>
+        <!-- KONVERTER USD KE IDR -->
+        <div class="glass rounded-3xl p-6 mb-6 shadow-2xl">
+            <div class="flex flex-col gap-4">
+                <div>
+                    <label class="text-xs text-gray-400 uppercase font-bold tracking-widest">Input USD</label>
+                    <input type="number" id="usdBox" value="1" 
+                        class="w-full bg-slate-900 rounded-2xl p-4 text-2xl font-mono font-bold text-yellow-500 focus:ring-2 focus:ring-blue-500 outline-none mt-2">
+                </div>
+                
+                <div class="bg-blue-600/20 border border-blue-500/30 rounded-2xl p-5">
+                    <p class="text-xs text-blue-300 uppercase font-bold">Hasil Rupiah (IDR)</p>
+                    <div id="idrText" class="text-3xl font-black mt-1">Rp 15.000...</div>
+                </div>
             </div>
         </div>
 
-        <p id="status" class="text-center text-[10px] text-gray-600 mt-4 uppercase">Loading...</p>
+        <!-- WIDGET HARGA (Pasti Jalan karena pake Script Luar) -->
+        <div class="glass rounded-3xl p-4 shadow-xl">
+            <h2 class="text-sm font-bold text-gray-400 mb-4 px-2 uppercase tracking-tighter">Live Market (USD)</h2>
+            <script type="text/javascript" src="https://widgets.cryptocompare.com/serve/v1/coin/list?fsyms=BTC,ETH,SOL,BNB,DOGE&tsyms=USD&theme=dark"></script>
+        </div>
+
+        <p class="text-[10px] text-gray-600 text-center mt-6 uppercase tracking-widest">Auto Update via CryptoCompare</p>
     </div>
 
     <script>
-        // Pakai API Coingecko yang lebih bersahabat sama browser
-        async function getPrices() {
+        // Logika sederhana buat konversi biar gak gampang crash
+        async function hitungKurs() {
             try {
-                const url = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin,tether&vs_currencies=usd,idr';
-                const response = await fetch(url);
-                const data = await response.json();
+                // Ambil harga USDT ke IDR
+                const r = await fetch('https://min-api.cryptocompare.com/data/price?fsym=USDT&tsyms=IDR');
+                const d = await r.json();
+                const rate = d.IDR;
 
-                // 1. Update Kurs IDR (Pake harga Tether/USDT ke IDR biar akurat)
-                const rateIdr = data.tether.idr;
-                const inputUsd = document.getElementById('usdInput').value;
-                const totalIdr = inputUsd * rateIdr;
+                const input = document.getElementById('usdBox').value;
+                const hasil = input * rate;
 
-                document.getElementById('idrResult').innerText = new Intl.NumberFormat('id-IDR', {
+                document.getElementById('idrText').innerText = new Intl.NumberFormat('id-IDR', {
                     style: 'currency',
                     currency: 'IDR',
                     maximumFractionDigits: 0
-                }).format(totalIdr);
-
-                // 2. Update List Koin
-                const cryptoData = [
-                    { name: 'Bitcoin', price: data.bitcoin.usd },
-                    { name: 'Ethereum', price: data.ethereum.usd },
-                    { name: 'Solana', price: data.solana.usd },
-                    { name: 'BNB', price: data.binancecoin.usd }
-                ];
-
-                let html = '';
-                cryptoData.forEach(coin => {
-                    html += `
-                        <div class="coin-row">
-                            <span>${coin.name}</span>
-                            <span class="font-mono text-yellow-500 font-bold">$${coin.price.toLocaleString()}</span>
-                        </div>
-                    `;
-                });
-                document.getElementById('cryptoList').innerHTML = html;
-                document.getElementById('status').innerText = "Update Terakhir: " + new Date().toLocaleTimeString();
-
-            } catch (error) {
-                console.error(error);
-                document.getElementById('status').innerText = "Gagal koneksi. Cek internet elu, Bro.";
+                }).format(hasil);
+            } catch (e) {
+                // Fallback kalau API mati, biar gak kosong melompong
+                const manualRate = 16250; 
+                const input = document.getElementById('usdBox').value;
+                document.getElementById('idrText').innerText = "Rp " + (input * manualRate).toLocaleString('id-IDR') + " (Est)";
             }
         }
 
+        // Jalankan pas ngetik
+        document.getElementById('usdBox').addEventListener('input', hitungKurs);
+        
         // Jalankan pas pertama buka
-        getPrices();
-
-        // Update otomatis tiap 15 detik
-        setInterval(getPrices, 15000);
-
-        // Update pas input diketik
-        document.getElementById('usdInput').addEventListener('input', getPrices);
+        hitungKurs();
+        
+        // Refresh kurs tiap 10 detik
+        setInterval(hitungKurs, 10000);
     </script>
 </body>
 </html>
