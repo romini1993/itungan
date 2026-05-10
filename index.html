@@ -139,6 +139,9 @@ main { max-width:860px; margin:0 auto; padding:0 20px; }
   display:flex; align-items:center; gap:8px; margin-bottom:0;
 }
 .input-label { font-size:10px; color:var(--muted); font-family:var(--mono); white-space:nowrap; min-width:32px; }
+.input-wrap {
+  flex:1; position:relative; display:flex; align-items:center;
+}
 .coin-amount-input {
   flex:1; background:var(--surface); border:1px solid var(--border);
   border-radius:8px; padding:8px 12px;
@@ -147,8 +150,14 @@ main { max-width:860px; margin:0 auto; padding:0 20px; }
 }
 .coin-amount-input:focus { border-color:var(--accent); }
 .coin-amount-input::placeholder { color:var(--muted); font-weight:400; font-size:12px; }
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
+
+.inline-est {
+  position:absolute; right:10px;
+  font-family:var(--mono); font-size:11px; color:var(--muted);
+  pointer-events:none; white-space:nowrap;
+  opacity:0; transition:opacity .15s;
+}
+.inline-est.visible { opacity:1; }
 
 /* fiat section */
 .fiat-section {
@@ -312,11 +321,11 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
     <div class="fiat-bottom">
       <div class="fiat-input-wrap">
         <span class="fiat-lbl">🇺🇸 USD · Dollar</span>
-        <input class="fiat-input" type="number" id="usdIn" placeholder="0" value="" oninput="fromFiat('usd')" onwheel="this.blur()" />
+        <input class="fiat-input" type="text" inputmode="decimal" id="usdIn" placeholder="0" value="" oninput="fromFiatFormat('usd');fromFiat('usd')" onwheel="this.blur()" />
       </div>
       <div class="fiat-input-wrap">
         <span class="fiat-lbl">🇮🇩 IDR · Rupiah</span>
-        <input class="fiat-input" type="text" inputmode="numeric" id="idrIn" placeholder="0" oninput="fromFiat('idr')" />
+        <input class="fiat-input" type="text" inputmode="numeric" id="idrIn" placeholder="0" oninput="fromFiatFormat('idr');fromFiat('idr')" />
       </div>
     </div>
   </div>
@@ -527,7 +536,14 @@ function propagate(sourceSym, sourceAmount) {
   // update fiat
   const usdEl = document.getElementById('usdIn');
   const idrEl = document.getElementById('idrIn');
-  if (sourceSym !== 'usd') usdEl.value = usdVal > 0 ? niceFmt(usdVal, 'usd') : '';
+  if (sourceSym !== 'usd') {
+    if (usdVal > 0) {
+      const plain = niceFmt(usdVal, 'usd'); // e.g. "1234.56"
+      const [int, dec] = plain.split('.');
+      const intFmt = int.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      usdEl.value = dec ? intFmt + '.' + dec : intFmt;
+    } else { usdEl.value = ''; }
+  }
   if (sourceSym !== 'idr') idrEl.value = usdVal > 0 ? Math.round(usdVal * rate).toLocaleString('id-ID') : '';
 
   // update each coin input + equivalents
@@ -537,7 +553,15 @@ function propagate(sourceSym, sourceAmount) {
     if (!el) return;
     if (sym !== sourceSym.toUpperCase()) {
       const qty = fromUSD_to(usdVal, sym);
-      el.value = qty != null && usdVal > 0 ? niceFmt(qty, sym) : '';
+      if (qty != null && usdVal > 0) {
+        // format with dot thousand separator, comma decimal
+        const plain = niceFmt(qty, sym);
+        const [int, dec] = plain.split('.');
+        const intFmt = int.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        el.value = dec ? intFmt + ',' + dec : intFmt;
+      } else {
+        el.value = '';
+      }
     }
     // update equivalents display
     updateEquivDisplay(sym, usdVal);
@@ -556,20 +580,99 @@ function fromFiat(which) {
   const usdEl = document.getElementById('usdIn');
   const idrEl = document.getElementById('idrIn');
   if (which === 'usd') {
-    const v = parseFloat(usdEl.value.replace(/[^\d.]/g, '')) || 0;
+    // USD uses dot thousand sep + dot decimal (1,234.56 → strip commas)
+    const v = parseFloat(usdEl.value.replace(/,/g, '')) || 0;
     propagate('usd', v);
   } else {
-    const v = parseFloat(idrEl.value.replace(/[^\d.]/g, '')) || 0;
+    // IDR uses dot thousand sep + comma decimal → strip dots, replace comma with dot
+    const v = parseFloat(idrEl.value.replace(/\./g, '').replace(',', '.')) || 0;
     propagate('idr', v);
   }
 }
 
+function fromFiatFormat(which) {
+  // auto-format fiat inputs as user types
+  if (which === 'usd') {
+    const el = document.getElementById('usdIn');
+    const raw = el.value.replace(/[^\d.]/g, '');
+    const [int, dec] = raw.split('.');
+    const intFmt = (int || '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    el.value = dec !== undefined ? intFmt + '.' + dec : intFmt;
+  } else {
+    const el = document.getElementById('idrIn');
+    const raw = el.value;
+    const stripped = raw.replace(/\./g, '').replace(',', '.');
+    const n = parseFloat(stripped);
+    if (!isNaN(n)) {
+      const [int, dec] = stripped.split('.');
+      const intFmt = (int || '').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      el.value = dec !== undefined ? intFmt + ',' + dec : intFmt;
+    }
+  }
+}
+
+// ── format helpers ──────────────────────────────────────
+function addDotSep(str) {
+  // format integer part with dots: "1000000" → "1.000.000"
+  const [int, dec] = str.split('.');
+  const intFmt = int.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return dec !== undefined ? intFmt + ',' + dec : intFmt;
+}
+function stripFmt(str) {
+  // strip dots (thousand sep) keep comma as decimal
+  return str.replace(/\./g, '').replace(',', '.');
+}
+function formatCoinInput(raw) {
+  // raw = whatever user typed; return {display, numeric}
+  const stripped = stripFmt(raw);
+  const n = parseFloat(stripped);
+  if (isNaN(n) || raw === '') return { display: raw, numeric: 0 };
+  // rebuild display
+  const hasComma = raw.includes(',');
+  const afterComma = hasComma ? raw.split(',')[1] : null;
+  const intPart = Math.floor(Math.abs(n)).toString();
+  const intFmt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  const display = afterComma !== undefined ? intFmt + ',' + afterComma : intFmt;
+  return { display, numeric: n };
+}
+
 function onCoinInput(sym) {
   const el = document.getElementById('input_' + sym);
-  // strip anything that isn't a digit, dot, or exponent chars
-  const raw = el.value.replace(/[^\d.eE+-]/g, '');
-  const v = raw === '' ? 0 : Number(raw);
-  if (!isNaN(v)) propagate(sym, v);
+  const raw = el.value;
+  const { display, numeric } = formatCoinInput(raw);
+  // only reformat if display differs (avoids cursor jump on mobile)
+  if (display !== raw) {
+    el.value = display;
+  }
+  propagate(sym, numeric);
+  // update inline estimate
+  updateInlineEst(sym, numeric);
+}
+
+function updateInlineEst(sym, qty) {
+  const estEl = document.getElementById('est_' + sym);
+  if (!estEl) return;
+  const usdVal = toUSD(sym, qty || 0);
+  if (usdVal && qty > 0) {
+    estEl.textContent = '~' + fUSD(usdVal);
+    estEl.classList.add('visible');
+  } else {
+    estEl.textContent = '';
+    estEl.classList.remove('visible');
+  }
+}
+
+function showEstimate(sym) {
+  const el = document.getElementById('input_' + sym);
+  const raw = el.value;
+  const stripped = stripFmt(raw);
+  const n = parseFloat(stripped) || 0;
+  updateInlineEst(sym, n);
+}
+
+function hideEstimate(sym) {
+  const estEl = document.getElementById('est_' + sym);
+  if (estEl) { estEl.textContent = ''; estEl.classList.remove('visible'); }
 }
 
 function updateEquivDisplay(sym, usdVal) {
@@ -680,14 +783,20 @@ function renderCoins() {
       <div class="card-bottom">
         <div class="input-row">
           <span class="input-label">${sym}</span>
-          <input
-            class="coin-amount-input"
-            type="number"
-            id="input_${sym}"
-            placeholder="Masukkan jumlah ${sym}…"
-            oninput="onCoinInput('${sym}')"
-            onwheel="this.blur()"
-          />
+          <div class="input-wrap">
+            <input
+              class="coin-amount-input"
+              type="text"
+              inputmode="decimal"
+              id="input_${sym}"
+              placeholder="Jumlah ${sym}…"
+              oninput="onCoinInput('${sym}')"
+              onfocus="showEstimate('${sym}')"
+              onblur="hideEstimate('${sym}')"
+              onwheel="this.blur()"
+            />
+            <span class="inline-est" id="est_${sym}"></span>
+          </div>
         </div>
       </div>
     </div>`;
