@@ -321,11 +321,11 @@ main { max-width:860px; margin:0 auto; padding:0 20px; }
     <div class="fiat-bottom">
       <div class="fiat-input-wrap">
         <span class="fiat-lbl">🇺🇸 USD · Dollar</span>
-        <input class="fiat-input" type="text" inputmode="decimal" id="usdIn" placeholder="0" value="" oninput="fromFiatFormat('usd');fromFiat('usd')" onwheel="this.blur()" autocomplete="off" autocorrect="off" spellcheck="false" />
+        <input class="fiat-input" type="text" inputmode="text" id="usdIn" placeholder="0" value="" oninput="fromFiatFormat('usd');fromFiat('usd')" onwheel="this.blur()" autocomplete="off" autocorrect="off" spellcheck="false" />
       </div>
       <div class="fiat-input-wrap">
         <span class="fiat-lbl">🇮🇩 IDR · Rupiah</span>
-        <input class="fiat-input" type="text" inputmode="numeric" id="idrIn" placeholder="0" oninput="fromFiatFormat('idr');fromFiat('idr')" autocomplete="off" autocorrect="off" spellcheck="false" />
+        <input class="fiat-input" type="text" inputmode="text" id="idrIn" placeholder="0" oninput="fromFiatFormat('idr');fromFiat('idr')" autocomplete="off" autocorrect="off" spellcheck="false" />
       </div>
     </div>
   </div>
@@ -764,7 +764,7 @@ function renderCoins() {
             <input
               class="coin-amount-input"
               type="text"
-              inputmode="decimal"
+              inputmode="text"
               id="input_${sym}"
               placeholder="Jumlah ${sym}…"
               oninput="onCoinInput('${sym}')"
