@@ -554,11 +554,10 @@ function propagate(sourceSym, sourceAmount) {
     if (sym !== sourceSym.toUpperCase()) {
       const qty = fromUSD_to(usdVal, sym);
       if (qty != null && usdVal > 0) {
-        // format with dot thousand separator, comma decimal
-        const plain = niceFmt(qty, sym);
+        const plain = niceFmt(qty, sym); // e.g. "1234.567890"
         const [int, dec] = plain.split('.');
-        const intFmt = int.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-        el.value = dec ? intFmt + ',' + dec : intFmt;
+        const intFmt = (int || '0').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        el.value = dec ? intFmt + '.' + dec : intFmt;
       } else {
         el.value = '';
       }
@@ -591,61 +590,40 @@ function fromFiat(which) {
 }
 
 function fromFiatFormat(which) {
-  // auto-format fiat inputs as user types
   if (which === 'usd') {
     const el = document.getElementById('usdIn');
-    const raw = el.value.replace(/[^\d.]/g, '');
-    const [int, dec] = raw.split('.');
-    const intFmt = (int || '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    el.value = dec !== undefined ? intFmt + '.' + dec : intFmt;
+    const raw = el.value.replace(/[^\d.]/g, ''); // strip koma, keep digit & titik
+    const parts = raw.split('.');
+    const intFmt = (parts[0] || '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    el.value = parts.length > 1 ? intFmt + '.' + parts.slice(1).join('') : intFmt;
   } else {
     const el = document.getElementById('idrIn');
-    const raw = el.value;
-    const stripped = raw.replace(/\./g, '').replace(',', '.');
-    const n = parseFloat(stripped);
-    if (!isNaN(n)) {
-      const [int, dec] = stripped.split('.');
-      const intFmt = (int || '').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-      el.value = dec !== undefined ? intFmt + ',' + dec : intFmt;
-    }
+    const raw = el.value.replace(/[^\d,]/g, ''); // strip titik, keep digit & koma
+    const parts = raw.split(',');
+    const intFmt = (parts[0] || '').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    el.value = parts.length > 1 ? intFmt + ',' + parts[1] : intFmt;
   }
-}
-
-// ── format helpers ──────────────────────────────────────
-function addDotSep(str) {
-  // format integer part with dots: "1000000" → "1.000.000"
-  const [int, dec] = str.split('.');
-  const intFmt = int.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  return dec !== undefined ? intFmt + ',' + dec : intFmt;
-}
-function stripFmt(str) {
-  // strip dots (thousand sep) keep comma as decimal
-  return str.replace(/\./g, '').replace(',', '.');
-}
-function formatCoinInput(raw) {
-  // raw = whatever user typed; return {display, numeric}
-  const stripped = stripFmt(raw);
-  const n = parseFloat(stripped);
-  if (isNaN(n) || raw === '') return { display: raw, numeric: 0 };
-  // rebuild display
-  const hasComma = raw.includes(',');
-  const afterComma = hasComma ? raw.split(',')[1] : null;
-  const intPart = Math.floor(Math.abs(n)).toString();
-  const intFmt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  const display = afterComma !== undefined ? intFmt + ',' + afterComma : intFmt;
-  return { display, numeric: n };
 }
 
 function onCoinInput(sym) {
   const el = document.getElementById('input_' + sym);
   const raw = el.value;
-  const { display, numeric } = formatCoinInput(raw);
-  // only reformat if display differs (avoids cursor jump on mobile)
-  if (display !== raw) {
-    el.value = display;
-  }
+
+  // strip semua kecuali digit dan titik/koma desimal
+  // pakai titik sebagai desimal untuk koin (standar internasional)
+  const cleaned = raw.replace(/[^\d.]/g, '');
+  // format: koma ribuan, titik desimal
+  const parts = cleaned.split('.');
+  const intFmt = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  const display = parts.length > 1 ? intFmt + '.' + parts.slice(1).join('') : intFmt;
+
+  const cursor = el.selectionStart;
+  const diff = display.length - raw.length;
+  el.value = display;
+  try { el.setSelectionRange(cursor + diff, cursor + diff); } catch(e) {}
+
+  const numeric = parseFloat(cleaned) || 0;
   propagate(sym, numeric);
-  // update inline estimate
   updateInlineEst(sym, numeric);
 }
 
@@ -664,9 +642,7 @@ function updateInlineEst(sym, qty) {
 
 function showEstimate(sym) {
   const el = document.getElementById('input_' + sym);
-  const raw = el.value;
-  const stripped = stripFmt(raw);
-  const n = parseFloat(stripped) || 0;
+  const n = parseFloat(el.value.replace(/,/g, '')) || 0;
   updateInlineEst(sym, n);
 }
 
