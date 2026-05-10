@@ -321,11 +321,11 @@ main { max-width:860px; margin:0 auto; padding:0 20px; }
     <div class="fiat-bottom">
       <div class="fiat-input-wrap">
         <span class="fiat-lbl">🇺🇸 USD · Dollar</span>
-        <input class="fiat-input" type="text" inputmode="decimal" id="usdIn" placeholder="0" value="" oninput="fromFiatFormat('usd');fromFiat('usd')" onwheel="this.blur()" />
+        <input class="fiat-input" type="text" inputmode="decimal" id="usdIn" placeholder="0" value="" oninput="fromFiatFormat('usd');fromFiat('usd')" onwheel="this.blur()" autocomplete="off" autocorrect="off" spellcheck="false" />
       </div>
       <div class="fiat-input-wrap">
         <span class="fiat-lbl">🇮🇩 IDR · Rupiah</span>
-        <input class="fiat-input" type="text" inputmode="numeric" id="idrIn" placeholder="0" oninput="fromFiatFormat('idr');fromFiat('idr')" />
+        <input class="fiat-input" type="text" inputmode="numeric" id="idrIn" placeholder="0" oninput="fromFiatFormat('idr');fromFiat('idr')" autocomplete="off" autocorrect="off" spellcheck="false" />
       </div>
     </div>
   </div>
@@ -350,7 +350,8 @@ main { max-width:860px; margin:0 auto; padding:0 20px; }
 <div class="overlay" id="overlay" onclick="bgClose(event)">
   <div class="modal">
     <h2>Tambah Koin</h2>
-    <input class="m-search" id="mSearch" placeholder="Cari nama atau simbol…" oninput="filterList()" />
+    <input class="m-search" id="mSearch" placeholder="Cari nama atau simbol…" oninput="filterList()"
+      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
     <div class="results" id="mResults">
       <div style="text-align:center;padding:18px;color:var(--muted);font-size:13px">Memuat daftar koin…</div>
     </div>
@@ -770,6 +771,10 @@ function renderCoins() {
               onfocus="showEstimate('${sym}')"
               onblur="hideEstimate('${sym}')"
               onwheel="this.blur()"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
             />
             <span class="inline-est" id="est_${sym}"></span>
           </div>
