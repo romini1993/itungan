@@ -267,6 +267,30 @@ main { max-width:860px; margin:0 auto; padding:0 20px; }
   main { padding:0 10px; }
   header { padding:10px 12px; }
 }
+
+/* ── calculator bar ── */
+#calcBar {
+  position:fixed; left:0; right:0; bottom:0; z-index:300;
+  display:none; align-items:center; gap:6px;
+  padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
+  background:rgba(17,17,24,.97); backdrop-filter:blur(14px);
+  border-top:1px solid var(--bh);
+}
+#calcBar.show { display:flex; }
+#calcBar button {
+  flex:0 0 auto; min-width:40px; height:36px; border-radius:8px;
+  background:var(--card); border:1px solid var(--border); color:var(--text);
+  font-family:var(--mono); font-size:16px; font-weight:700; cursor:pointer;
+}
+#calcBar button:active { background:var(--aglow); border-color:var(--accent); }
+#calcBar button.eq { background:var(--accent); border-color:var(--accent); }
+#calcPrev {
+  flex:1; min-width:0; text-align:right; padding-right:4px;
+  font-family:var(--mono); font-size:13px; font-weight:700; color:var(--green);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+#calcPrev.err { color:var(--red); }
+.calc-err { border-color:var(--red) !important; }
 </style>
 </head>
 <body>
@@ -322,11 +346,11 @@ main { max-width:860px; margin:0 auto; padding:0 20px; }
     <div class="fiat-bottom">
       <div class="fiat-input-wrap">
         <span class="fiat-lbl"><svg class="flag-ic" viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="16" fill="#B31942"/><g fill="#fff"><rect y="1.23" width="24" height="1.23"/><rect y="3.69" width="24" height="1.23"/><rect y="6.15" width="24" height="1.23"/><rect y="8.62" width="24" height="1.23"/><rect y="11.08" width="24" height="1.23"/><rect y="13.54" width="24" height="1.23"/></g><rect width="9.6" height="8.62" fill="#0A3161"/></svg> USD · Dollar</span>
-        <input class="fiat-input" type="text" inputmode="decimal" id="usdIn" placeholder="0" value="" oninput="fromFiatFormat('usd');fromFiat('usd')" onwheel="this.blur()" />
+        <input class="fiat-input" type="text" inputmode="decimal" id="usdIn" placeholder="0" value="" oninput="fiatInput('usd')" onwheel="this.blur()" />
       </div>
       <div class="fiat-input-wrap">
         <span class="fiat-lbl"><svg class="flag-ic" viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="8" fill="#CE1126"/><rect y="8" width="24" height="8" fill="#fff"/></svg> IDR · Rupiah</span>
-        <input class="fiat-input" type="text" inputmode="numeric" id="idrIn" placeholder="0" oninput="fromFiatFormat('idr');fromFiat('idr')" />
+        <input class="fiat-input" type="text" inputmode="decimal" id="idrIn" placeholder="0" oninput="fiatInput('idr')" />
       </div>
     </div>
   </div>
@@ -359,6 +383,16 @@ main { max-width:860px; margin:0 auto; padding:0 20px; }
   </div>
 </div>
 
+<div id="calcBar">
+  <button type="button" data-op="+">+</button>
+  <button type="button" data-op="-">−</button>
+  <button type="button" data-op="*">×</button>
+  <button type="button" data-op="/">÷</button>
+  <button type="button" data-op="(">(</button>
+  <button type="button" data-op=")">)</button>
+  <span id="calcPrev"></span>
+  <button type="button" class="eq" data-op="=">=</button>
+</div>
 <script>
 /* ───────────────────────────────────────────
    STATE
@@ -609,6 +643,10 @@ function fromFiatFormat(which) {
 function onCoinInput(sym) {
   const el = document.getElementById('input_' + sym);
   const raw = el.value;
+
+  // mode kalkulator: ada operator → jangan diformat, cukup preview hasil
+  if (hasOp(raw)) { calcPreview(el, sym); return; }
+  calcPreview(null);
 
   // strip semua kecuali digit dan titik/koma desimal
   // pakai titik sebagai desimal untuk koin (standar internasional)
@@ -909,6 +947,138 @@ async function pickCoin(id, name, sym) {
   renderCoins();
   if (activeField && amounts[activeField]) propagate(activeField, amounts[activeField]);
 }
+
+
+/* ───────────────────────────────────────────
+   CALCULATOR — ketik 1000+1000 lalu Enter di kolom mana pun
+─────────────────────────────────────────── */
+function hasOp(str) { return /[+\-*\/x×÷()]/i.test(str); }
+
+// parser aman (tanpa eval): + - * / ( ) dan minus unary
+function evalExpr(src) {
+  const t = src.match(/\d*\.?\d+|[+\-*\/()]/g);
+  if (!t || t.join('') !== src.replace(/\s/g, '')) return NaN;
+  let i = 0;
+  const expr = () => { let v = term(); while (t[i] === '+' || t[i] === '-') { const o = t[i++]; const r = term(); v = o === '+' ? v + r : v - r; } return v; };
+  const term = () => { let v = unary(); while (t[i] === '*' || t[i] === '/') { const o = t[i++]; const r = unary(); v = o === '*' ? v * r : v / r; } return v; };
+  const unary = () => { if (t[i] === '-') { i++; return -unary(); } if (t[i] === '+') { i++; return unary(); } return atom(); };
+  const atom = () => {
+    if (t[i] === '(') { i++; const v = expr(); if (t[i++] !== ')') return NaN; return v; }
+    const n = parseFloat(t[i++]); return isNaN(n) ? NaN : n;
+  };
+  const v = expr();
+  return i === t.length ? v : NaN;
+}
+
+// IDR: titik = ribuan, koma = desimal. Lainnya: koma = ribuan, titik = desimal
+function calcValue(raw, isIdr) {
+  let s = raw.replace(/\s/g, '').replace(/[x×]/gi, '*').replace(/÷/g, '/');
+  s = isIdr ? s.replace(/\./g, '').replace(/,/g, '.') : s.replace(/,/g, '');
+  const v = evalExpr(s);
+  return (isFinite(v) && v >= 0) ? v : NaN;
+}
+
+function fmtCalc(n, isIdr, maxDec) {
+  const fixed = n.toFixed(maxDec).replace(/\.?0+$/, '');
+  const [int, dec] = fixed.split('.');
+  const th = isIdr ? '.' : ',';
+  const intFmt = int.replace(/\B(?=(\d{3})+(?!\d))/g, th);
+  return dec ? intFmt + (isIdr ? ',' : '.') + dec : intFmt;
+}
+
+function fieldInfo(el) {
+  if (!el) return null;
+  if (el.id === 'idrIn') return { idr: true, dec: 2 };
+  if (el.id === 'usdIn') return { idr: false, dec: 6 };
+  if (el.classList.contains('coin-amount-input')) return { idr: false, dec: 8 };
+  return null;
+}
+
+function calcPreview(el) {
+  const prev = document.getElementById('calcPrev');
+  if (!prev) return;
+  prev.classList.remove('err');
+  const info = fieldInfo(el);
+  if (!info || !hasOp(el.value)) { prev.textContent = ''; return; }
+  const v = calcValue(el.value, info.idr);
+  prev.textContent = isNaN(v) ? '' : '= ' + fmtCalc(v, info.idr, info.dec);
+}
+
+function applyField(el, n) {
+  const info = fieldInfo(el);
+  el.value = fmtCalc(n, info.idr, info.dec);
+  if (el.id === 'usdIn') fromFiat('usd');
+  else if (el.id === 'idrIn') fromFiat('idr');
+  else onCoinInput(el.id.replace('input_', ''));
+  calcPreview(null);
+}
+
+// true kalau ada ekspresi dan sudah dihitung
+function runCalc(el) {
+  const info = fieldInfo(el);
+  if (!info || !hasOp(el.value)) return false;
+  const v = calcValue(el.value, info.idr);
+  if (isNaN(v)) {
+    el.classList.add('calc-err');
+    const prev = document.getElementById('calcPrev');
+    prev.textContent = 'rumus tidak valid'; prev.classList.add('err');
+    setTimeout(() => el.classList.remove('calc-err'), 700);
+    return true;
+  }
+  applyField(el, v);
+  return true;
+}
+
+function fiatInput(which) {
+  const el = document.getElementById(which === 'usd' ? 'usdIn' : 'idrIn');
+  if (hasOp(el.value)) { calcPreview(el); return; }
+  calcPreview(null);
+  fromFiatFormat(which);
+  fromFiat(which);
+}
+
+(function initCalc() {
+  const bar = document.getElementById('calcBar');
+  let cur = null;
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && fieldInfo(e.target)) { e.preventDefault(); runCalc(e.target); }
+  });
+  document.addEventListener('focusin', e => {
+    if (!fieldInfo(e.target)) return;
+    cur = e.target; bar.classList.add('show'); placeBar(); calcPreview(cur);
+  });
+  document.addEventListener('focusout', e => {
+    if (e.target !== cur) return;
+    runCalc(cur);               // kalau pindah kolom, hasil tetap dihitung
+    setTimeout(() => {
+      if (!fieldInfo(document.activeElement)) { bar.classList.remove('show'); cur = null; }
+    }, 0);
+  });
+
+  // tombol operator: mousedown/touch di-preventDefault supaya fokus input tidak hilang
+  bar.addEventListener('mousedown', e => e.preventDefault());
+  bar.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
+  bar.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b || !cur) return;
+    const op = b.dataset.op;
+    if (op === '=') { runCalc(cur); return; }
+    const a = cur.selectionStart ?? cur.value.length, z = cur.selectionEnd ?? a;
+    cur.value = cur.value.slice(0, a) + op + cur.value.slice(z);
+    cur.setSelectionRange(a + 1, a + 1);
+    cur.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+
+  // taruh bar tepat di atas keyboard (Android/iOS)
+  function placeBar() {
+    const vv = window.visualViewport; if (!vv) return;
+    bar.style.bottom = Math.max(0, window.innerHeight - (vv.height + vv.offsetTop)) + 'px';
+  }
+  if (window.visualViewport) {
+    visualViewport.addEventListener('resize', placeBar);
+    visualViewport.addEventListener('scroll', placeBar);
+  }
+})();
 
 /* ───────────────────────────────────────────
    SERVICE WORKER (PWA offline cache)
