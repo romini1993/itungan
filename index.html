@@ -390,7 +390,7 @@ body.kp-open { padding-bottom:480px; }
 </div>
 
 <div id="calcBar">
-  <div class="kp-top"><span id="calcPrev"></span><button type="button" data-act="hide" aria-label="Tutup">▼</button></div>
+  <div class="kp-top"><span id="calcPrev"></span></div>
   <div class="kp-grid">
     <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button><button class="op" data-k="÷">÷</button><button class="op" data-act="bs" aria-label="Hapus">⌫</button>
     <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button><button class="op" data-k="×">×</button>
@@ -1063,6 +1063,7 @@ function fiatInput(which) {
   document.addEventListener('focusin', e => {
     if (!fieldInfo(e.target)) return;
     cur = e.target; bar.classList.add('show'); document.body.classList.add('kp-open');
+    if (!pushed) { history.pushState({ kp: 1 }, ''); pushed = true; }   // supaya tombol Back cuma nutup keypad
     calcPreview(cur);
     document.getElementById('calcPrev').parentNode; // keep layout
     setTimeout(() => { try { cur && cur.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (_) {} }, 50);
@@ -1074,9 +1075,18 @@ function fiatInput(which) {
       if (!fieldInfo(document.activeElement)) hide();
     }, 0);
   });
-  function hide() {
+  let pushed = false, ignorePop = false;
+  function hideUI() {
     bar.classList.remove('show'); document.body.classList.remove('kp-open'); cur = null;
   }
+  function hide() {                      // ditutup lewat cara lain (tap di luar)
+    hideUI();
+    if (pushed) { pushed = false; ignorePop = true; history.back(); }
+  }
+  window.addEventListener('popstate', () => {   // tombol Back
+    if (ignorePop) { ignorePop = false; return; }
+    if (pushed) { pushed = false; if (cur) cur.blur(); hideUI(); }
+  });
 
   // keypad jangan sampai mencuri fokus dari input
   bar.addEventListener('mousedown', e => e.preventDefault());
@@ -1100,7 +1110,6 @@ function fiatInput(which) {
 
   let rep = null;
   function press(b) {
-    if (b.dataset.act === 'hide') { if (cur) cur.blur(); hide(); return; }
     if (!cur) return;
     const act = b.dataset.act;
     if (act === 'eq') runCalc(cur);
