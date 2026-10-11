@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Kurs Crypto</title>
 <meta name="description" content="Konverter harga crypto realtime — USD, IDR, dan koin favoritmu." />
 <meta name="theme-color" content="#0a0a0f" />
@@ -268,28 +268,33 @@ main { max-width:860px; margin:0 auto; padding:0 20px; }
   header { padding:10px 12px; }
 }
 
-/* ── calculator bar ── */
+/* ── calculator keypad ── */
 #calcBar {
   position:fixed; left:0; right:0; bottom:0; z-index:9999;
-  display:none; align-items:center; gap:6px;
-  padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
-  background:rgba(17,17,24,.97); backdrop-filter:blur(14px);
-  border-top:1px solid var(--bh);
+  display:none; flex-direction:column;
+  padding:6px 10px calc(10px + env(safe-area-inset-bottom,0px));
+  background:#202125; border-top:1px solid var(--bh);
+  user-select:none; -webkit-user-select:none; touch-action:manipulation;
 }
 #calcBar.show { display:flex; }
-#calcBar button {
-  flex:0 0 auto; min-width:44px; height:42px; border-radius:8px;
-  background:var(--card); border:1px solid var(--border); color:var(--text);
-  font-family:var(--mono); font-size:16px; font-weight:700; cursor:pointer;
-}
-#calcBar button:active { background:var(--aglow); border-color:var(--accent); }
-#calcBar button.eq { background:var(--accent); border-color:var(--accent); }
+body.kp-open { padding-bottom:330px; }
+.kp-top { display:flex; align-items:center; gap:8px; min-height:30px; }
 #calcPrev {
-  flex:1; min-width:0; text-align:right; padding-right:4px;
-  font-family:var(--mono); font-size:13px; font-weight:700; color:var(--green);
+  flex:1; min-width:0; padding-left:4px;
+  font-family:var(--mono); font-size:14px; font-weight:700; color:var(--green);
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
 #calcPrev.err { color:var(--red); }
+.kp-top button { background:none; border:none; color:#8ab4f8; font-size:16px; padding:4px 12px; cursor:pointer; }
+.kp-grid { display:grid; grid-template-columns:repeat(3,1fr) 0.9fr 0.9fr; gap:4px; }
+.kp-grid button {
+  height:52px; border:none; border-radius:12px; background:transparent;
+  color:#e8eaed; font-family:var(--sans); font-size:24px; font-weight:500; cursor:pointer;
+}
+.kp-grid button:active { background:rgba(255,255,255,.12); }
+.kp-grid button.op { color:#8ab4f8; font-size:26px; }
+.kp-grid button.eq { grid-row:span 2; height:auto; background:#8ab4f8; color:#1b1c20; font-size:28px; border-radius:14px; }
+.kp-grid button.eq:active { background:#a8c7fa; }
 .calc-err { border-color:var(--red) !important; }
 </style>
 </head>
@@ -384,14 +389,13 @@ main { max-width:860px; margin:0 auto; padding:0 20px; }
 </div>
 
 <div id="calcBar">
-  <button type="button" data-op="+">+</button>
-  <button type="button" data-op="-">−</button>
-  <button type="button" data-op="*">×</button>
-  <button type="button" data-op="/">÷</button>
-  <button type="button" data-op="(">(</button>
-  <button type="button" data-op=")">)</button>
-  <span id="calcPrev"></span>
-  <button type="button" class="eq" data-op="=">=</button>
+  <div class="kp-top"><span id="calcPrev"></span><button type="button" data-act="hide" aria-label="Tutup">▼</button></div>
+  <div class="kp-grid">
+    <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button><button class="op" data-k="÷">÷</button><button class="op" data-act="bs" aria-label="Hapus">⌫</button>
+    <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button><button class="op" data-k="×">×</button><button class="op" data-act="clear">C</button>
+    <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button><button class="op" data-k="-">−</button><button class="eq" data-act="eq">=</button>
+    <button data-k="0">0</button><button data-act="dec">,</button><button data-k="000">000</button><button class="op" data-k="+">+</button>
+  </div>
 </div>
 <script>
 /* ───────────────────────────────────────────
@@ -1041,46 +1045,70 @@ function fiatInput(which) {
   const bar = document.getElementById('calcBar');
   let cur = null;
 
+  // kolom jumlah: keyboard bawaan HP dimatikan, pakai keypad sendiri
+  function noNative() {
+    document.querySelectorAll('.coin-amount-input, #usdIn, #idrIn').forEach(i => i.setAttribute('inputmode', 'none'));
+  }
+  noNative();
+  new MutationObserver(noNative).observe(document.body, { childList: true, subtree: true });
+
   document.addEventListener('keydown', e => {
     if (e.key === 'Enter' && fieldInfo(e.target)) { e.preventDefault(); runCalc(e.target); }
   });
   document.addEventListener('focusin', e => {
     if (!fieldInfo(e.target)) return;
-    cur = e.target; bar.classList.add('show'); placeBar(); calcPreview(cur);
-    // keyboard HP butuh waktu buat muncul → hitung ulang posisi bar beberapa kali
-    [100, 300, 600].forEach(ms => setTimeout(placeBar, ms));
+    cur = e.target; bar.classList.add('show'); document.body.classList.add('kp-open');
+    calcPreview(cur);
+    document.getElementById('calcPrev').parentNode; // keep layout
+    setTimeout(() => { try { cur && cur.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (_) {} }, 50);
   });
   document.addEventListener('focusout', e => {
     if (e.target !== cur) return;
-    runCalc(cur);               // kalau pindah kolom, hasil tetap dihitung
+    runCalc(cur);                 // pindah kolom → rumus tetap dihitung
     setTimeout(() => {
-      if (!fieldInfo(document.activeElement)) { bar.classList.remove('show'); cur = null; }
+      if (!fieldInfo(document.activeElement)) hide();
     }, 0);
   });
+  function hide() {
+    bar.classList.remove('show'); document.body.classList.remove('kp-open'); cur = null;
+  }
 
-  // tombol operator: mousedown/touch di-preventDefault supaya fokus input tidak hilang
+  // keypad jangan sampai mencuri fokus dari input
   bar.addEventListener('mousedown', e => e.preventDefault());
-  bar.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
-  bar.addEventListener('click', e => {
-    const b = e.target.closest('button'); if (!b || !cur) return;
-    const op = b.dataset.op;
-    if (op === '=') { runCalc(cur); return; }
+  bar.addEventListener('touchstart', e => { if (e.target.closest('button')) e.preventDefault(); }, { passive: false });
+
+  function fire() { cur.dispatchEvent(new Event('input', { bubbles: true })); }
+  function insert(txt) {
     const a = cur.selectionStart ?? cur.value.length, z = cur.selectionEnd ?? a;
-    cur.value = cur.value.slice(0, a) + op + cur.value.slice(z);
-    cur.setSelectionRange(a + 1, a + 1);
-    cur.dispatchEvent(new Event('input', { bubbles: true }));
+    cur.value = cur.value.slice(0, a) + txt + cur.value.slice(z);
+    cur.setSelectionRange(a + txt.length, a + txt.length);
+    fire();
+  }
+  function backspace() {
+    let a = cur.selectionStart ?? cur.value.length; const z = cur.selectionEnd ?? a;
+    if (a === z) { if (a === 0) return; a -= 1; }
+    cur.value = cur.value.slice(0, a) + cur.value.slice(z);
+    cur.setSelectionRange(a, a);
+    fire();
+  }
+
+  bar.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.act === 'hide') { if (cur) cur.blur(); hide(); return; }
+    if (!cur) return;
+    const act = b.dataset.act;
+    if (act === 'eq') runCalc(cur);
+    else if (act === 'bs') backspace();
+    else if (act === 'clear') { cur.value = ''; fire(); }
+    else if (act === 'dec') insert(cur.id === 'idrIn' ? ',' : '.');
+    else if (b.dataset.k) insert(b.dataset.k);
   });
 
-  // taruh bar tepat di atas keyboard (Android/iOS)
-  function placeBar() {
-    const vv = window.visualViewport; if (!vv) return;
-    const h = document.documentElement.clientHeight;   // layout viewport
-    bar.style.bottom = Math.max(0, Math.round(h - (vv.height + vv.offsetTop))) + 'px';
-  }
-  if (window.visualViewport) {
-    visualViewport.addEventListener('resize', placeBar);
-    visualViewport.addEventListener('scroll', placeBar);
-  }
+  // label tombol desimal ikut kolom (IDR = koma, lainnya = titik)
+  document.addEventListener('focusin', e => {
+    if (!fieldInfo(e.target)) return;
+    bar.querySelector('[data-act="dec"]').textContent = e.target.id === 'idrIn' ? ',' : '.';
+  });
 })();
 
 /* ───────────────────────────────────────────
