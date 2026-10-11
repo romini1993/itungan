@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content" />
 <title>Kurs Crypto</title>
 <meta name="description" content="Konverter harga crypto realtime — USD, IDR, dan koin favoritmu." />
 <meta name="theme-color" content="#0a0a0f" />
@@ -270,7 +270,7 @@ main { max-width:860px; margin:0 auto; padding:0 20px; }
 
 /* ── calculator bar ── */
 #calcBar {
-  position:fixed; left:0; right:0; bottom:0; z-index:300;
+  position:fixed; left:0; right:0; bottom:0; z-index:9999;
   display:none; align-items:center; gap:6px;
   padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
   background:rgba(17,17,24,.97); backdrop-filter:blur(14px);
@@ -278,7 +278,7 @@ main { max-width:860px; margin:0 auto; padding:0 20px; }
 }
 #calcBar.show { display:flex; }
 #calcBar button {
-  flex:0 0 auto; min-width:40px; height:36px; border-radius:8px;
+  flex:0 0 auto; min-width:44px; height:42px; border-radius:8px;
   background:var(--card); border:1px solid var(--border); color:var(--text);
   font-family:var(--mono); font-size:16px; font-weight:700; cursor:pointer;
 }
@@ -1047,6 +1047,8 @@ function fiatInput(which) {
   document.addEventListener('focusin', e => {
     if (!fieldInfo(e.target)) return;
     cur = e.target; bar.classList.add('show'); placeBar(); calcPreview(cur);
+    // keyboard HP butuh waktu buat muncul → hitung ulang posisi bar beberapa kali
+    [100, 300, 600].forEach(ms => setTimeout(placeBar, ms));
   });
   document.addEventListener('focusout', e => {
     if (e.target !== cur) return;
@@ -1072,7 +1074,8 @@ function fiatInput(which) {
   // taruh bar tepat di atas keyboard (Android/iOS)
   function placeBar() {
     const vv = window.visualViewport; if (!vv) return;
-    bar.style.bottom = Math.max(0, window.innerHeight - (vv.height + vv.offsetTop)) + 'px';
+    const h = document.documentElement.clientHeight;   // layout viewport
+    bar.style.bottom = Math.max(0, Math.round(h - (vv.height + vv.offsetTop))) + 'px';
   }
   if (window.visualViewport) {
     visualViewport.addEventListener('resize', placeBar);
