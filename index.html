@@ -293,9 +293,6 @@ body.kp-open { padding-bottom:480px; }
 }
 .kp-grid button:active { background:rgba(255,255,255,.12); }
 .kp-grid button.op { color:#8ab4f8; font-size:30px; }
-.kp-grid button[data-act="bs"] { grid-row:span 2; height:auto; background:rgba(255,255,255,.06); font-size:30px; }
-.kp-grid button.eq { grid-row:span 2; height:auto; background:#8ab4f8; color:#1b1c20; font-size:28px; border-radius:14px; }
-.kp-grid button.eq:active { background:#a8c7fa; }
 .calc-err { border-color:var(--red) !important; }
 </style>
 </head>
@@ -393,9 +390,9 @@ body.kp-open { padding-bottom:480px; }
   <div class="kp-top"><span id="calcPrev"></span></div>
   <div class="kp-grid">
     <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button><button class="op" data-k="÷">÷</button><button class="op" data-act="bs" aria-label="Hapus">⌫</button>
-    <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button><button class="op" data-k="×">×</button>
-    <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button><button class="op" data-k="-">−</button><button class="eq" data-act="eq">=</button>
-    <button data-k="0">0</button><button data-act="dec">,</button><button data-k="000">000</button><button class="op" data-k="+">+</button>
+    <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button><button class="op" data-k="×">×</button><span></span>
+    <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button><button class="op" data-k="-">−</button><span></span>
+    <button data-k="0">0</button><button data-act="dec">,</button><span></span><button class="op" data-k="+">+</button><button class="op" data-act="eq">=</button>
   </div>
 </div>
 <script>
@@ -650,7 +647,7 @@ function onCoinInput(sym) {
   const raw = el.value;
 
   // mode kalkulator: ada operator → jangan diformat, cukup preview hasil
-  if (hasOp(raw)) { calcPreview(el, sym); return; }
+  if (hasOp(raw)) { reformatExpr(el); calcPreview(el); return; }
   calcPreview(null);
 
   // strip semua kecuali digit dan titik/koma desimal
@@ -991,6 +988,27 @@ function fmtCalc(n, isIdr, maxDec) {
   return dec ? intFmt + (isIdr ? ',' : '.') + dec : intFmt;
 }
 
+
+// format tiap angka di dalam rumus: IDR 1.000+1.000 · USD/koin 1,000+1,000
+function reformatExpr(el) {
+  const info = fieldInfo(el); if (!info) return;
+  const th = info.idr ? '.' : ',', dc = info.idr ? ',' : '.';
+  const raw = el.value;
+  const pos = el.readOnly ? raw.length : (el.selectionStart ?? raw.length);
+  let before = 0; for (let i = 0; i < pos; i++) if (raw[i] !== th) before++;
+  const fmtSeg = seg => {
+    const k = seg.split(th).join('').split(dc);
+    let r = k[0].replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, th);
+    if (k.length > 1) r += dc + k.slice(1).join('').replace(/\D/g, '');
+    return r;
+  };
+  const out = raw.split(/([+\-*\/x×÷()\s]+)/i).map((seg, i) => i % 2 ? seg : fmtSeg(seg)).join('');
+  let np = before === 0 ? 0 : out.length, n = 0;
+  if (before > 0) for (let i = 0; i < out.length; i++) { if (out[i] !== th) { n++; if (n === before) { np = i + 1; break; } } }
+  el.value = out;
+  try { el.setSelectionRange(np, np); } catch (_) {}
+}
+
 function fieldInfo(el) {
   if (!el) return null;
   if (el.id === 'idrIn') return { idr: true, dec: 2 };
@@ -1036,7 +1054,7 @@ function runCalc(el) {
 
 function fiatInput(which) {
   const el = document.getElementById(which === 'usd' ? 'usdIn' : 'idrIn');
-  if (hasOp(el.value)) { calcPreview(el); return; }
+  if (hasOp(el.value)) { reformatExpr(el); calcPreview(el); return; }
   calcPreview(null);
   fromFiatFormat(which);
   fromFiat(which);
