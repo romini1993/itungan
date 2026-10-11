@@ -277,7 +277,7 @@ main { max-width:860px; margin:0 auto; padding:0 20px; }
   user-select:none; -webkit-user-select:none; touch-action:manipulation;
 }
 #calcBar.show { display:flex; }
-body.kp-open { padding-bottom:400px; }
+body.kp-open { padding-bottom:480px; }
 .kp-top { display:flex; align-items:center; gap:8px; min-height:38px; }
 #calcPrev {
   flex:1; min-width:0; padding-left:4px;
@@ -288,11 +288,12 @@ body.kp-open { padding-bottom:400px; }
 .kp-top button { background:none; border:none; color:#8ab4f8; font-size:16px; padding:4px 12px; cursor:pointer; }
 .kp-grid { display:grid; grid-template-columns:repeat(3,1fr) 0.9fr 0.9fr; gap:6px; }
 .kp-grid button {
-  height:clamp(60px,9vh,76px); border:none; border-radius:14px; background:transparent;
+  height:clamp(76px,11.5vh,96px); border:none; border-radius:14px; background:transparent;
   color:#e8eaed; font-family:var(--sans); font-size:28px; font-weight:500; cursor:pointer;
 }
 .kp-grid button:active { background:rgba(255,255,255,.12); }
 .kp-grid button.op { color:#8ab4f8; font-size:30px; }
+.kp-grid button[data-act="bs"] { grid-row:span 2; height:auto; background:rgba(255,255,255,.06); font-size:30px; }
 .kp-grid button.eq { grid-row:span 2; height:auto; background:#8ab4f8; color:#1b1c20; font-size:28px; border-radius:14px; }
 .kp-grid button.eq:active { background:#a8c7fa; }
 .calc-err { border-color:var(--red) !important; }
@@ -392,7 +393,7 @@ body.kp-open { padding-bottom:400px; }
   <div class="kp-top"><span id="calcPrev"></span><button type="button" data-act="hide" aria-label="Tutup">▼</button></div>
   <div class="kp-grid">
     <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button><button class="op" data-k="÷">÷</button><button class="op" data-act="bs" aria-label="Hapus">⌫</button>
-    <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button><button class="op" data-k="×">×</button><button class="op" data-act="clear">C</button>
+    <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button><button class="op" data-k="×">×</button>
     <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button><button class="op" data-k="-">−</button><button class="eq" data-act="eq">=</button>
     <button data-k="0">0</button><button data-act="dec">,</button><button data-k="000">000</button><button class="op" data-k="+">+</button>
   </div>
@@ -1113,8 +1114,8 @@ function fiatInput(which) {
     const b = e.target.closest('button'); if (!b) return;
     e.preventDefault();
     press(b);
-    if (b.dataset.act === 'bs') {      // tahan ⌫ = hapus terus
-      rep = setTimeout(() => { rep = setInterval(() => press(b), 70); }, 400);
+    if (b.dataset.act === 'bs') {      // tahan ⌫ = kosongkan seluruh kolom
+      rep = setTimeout(() => { if (cur) { cur.value = ''; fire(); } rep = null; }, 450);
     }
   });
   ['pointerup', 'pointercancel', 'pointerleave'].forEach(t => bar.addEventListener(t, stopRep));
